@@ -1,5 +1,6 @@
 import time
 from datetime import datetime, timedelta
+
 from cytomat.barcode_scanner import BarcodeScanner
 from cytomat.climate_controller import ClimateController
 from cytomat.maintenance_controller import MaintenanceController
@@ -34,7 +35,7 @@ class Cytomat:
     Exposes tower shaker functionality
     """
 
-    def __init__(self, serial_port: str, json_path: str = 'cytomat.json'):
+    def __init__(self, serial_port: str):
         self.serial_port = SerialPort(serial_port, timeout=1)
         self.plate_handler = PlateHandler(self.serial_port)
         self.barcode_scanner = BarcodeScanner(self.serial_port)
@@ -80,7 +81,7 @@ class Cytomat:
         """
         status = self.overview_status
         end_time = datetime.now() + timedelta(seconds=timeout)
-        while status.busy:
+        while status.command_in_process:
             if end_time < datetime.now():
                 raise TimeoutError(f"Device still busy after {timeout} seconds")
             time.sleep(poll_interval)
