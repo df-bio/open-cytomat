@@ -87,6 +87,7 @@ class WarningStatus(IntEnum):
 
 
 class ActionType(IntEnum):
+    NoAction = 0x00
     MoveHeightBelowSlot = 0x01
     CheckHeightBelowSlot = 0x02
     MoveHeightAboveSlot = 0x03
@@ -111,7 +112,7 @@ class ActionType(IntEnum):
     MoveToBarcodeReader = 0x16
     CheckHandlerAtBarcodeReader = 0x17
     ReadBarcode = 0x18
-
+    Unknown = 0x1c
 
 class ActionTarget(IntEnum):
     InitPosition = 1
