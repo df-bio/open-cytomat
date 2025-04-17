@@ -129,7 +129,6 @@ class ActionStatus(NamedTuple):
     def from_hex_string(cls, hex_byte: str) -> ActionStatus:
         """Create an instance from the hex string (e.g. ``'F1'``)"""
         num = int(hex_byte, base=16)
-        print(f"ActionStatus: decode num={num}, hex=0x{hex_byte}, binary=0b{num:08b}")
         action_target = enum_to_dict(ActionTarget)[(num & 0b11100000) >> 5]
         action_type = enum_to_dict(ActionType)[num & 0b00011111]
         return ActionStatus(action_type, action_target)
