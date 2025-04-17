@@ -3,10 +3,10 @@ from cytomat.status import PlateShuttleSystemStatus
 
 
 class ShakerController:
-    __serial_port: SerialPort
+    serial_port: SerialPort
 
     def __init__(self, serial_port: SerialPort) -> None:
-        self.__serial_port = serial_port
+        self.serial_port = serial_port
 
     def get_shaker_frequency(self, shaker: int) -> int:
         """
@@ -22,7 +22,7 @@ class ShakerController:
         The shaker frequency
         """
         self.__check_shaker_id(shaker)
-        return int(self.__serial_port.issue_status_command(f"ch:pb {shaker + 19}"))
+        return int(self.serial_port.issue_status_command(f"ch:pb {shaker + 19}"))
 
     def set_shaker_frequency(
         self, shaker: int, frequency: int
@@ -38,17 +38,17 @@ class ShakerController:
             The target frequency
         """
         self.__check_shaker_id(shaker)
-        return self.__serial_port.issue_action_command(
+        return self.serial_port.issue_action_command(
             f"se:pb {shaker + 19} {frequency:04}"
         )
 
     def initialize_shakers(self) -> PlateShuttleSystemStatus:
         """Initialize the shakers"""
-        return self.__serial_port.issue_action_command("ll:vi")
+        return self.serial_port.issue_action_command("ll:vi")
 
     def start_all_shakers(self) -> PlateShuttleSystemStatus:
         """Start all shakers"""
-        return self.__serial_port.issue_action_command("ll:va")
+        return self.serial_port.issue_action_command("ll:va")
 
     def start_shaker(self, shaker: int) -> PlateShuttleSystemStatus:
         """
@@ -60,11 +60,11 @@ class ShakerController:
             The shaker number (1-based)
         """
         self.__check_shaker_id(shaker)
-        return self.__serial_port.issue_action_command(f"ll:va {shaker:03}")
+        return self.serial_port.issue_action_command(f"ll:va {shaker:03}")
 
     def stop_all_shakers(self) -> PlateShuttleSystemStatus:
         """Stop all shakers"""
-        return self.__serial_port.issue_action_command("ll:vd")
+        return self.serial_port.issue_action_command("ll:vd")
 
     def stop_shaker(self, shaker: int) -> PlateShuttleSystemStatus:
         """
@@ -76,7 +76,7 @@ class ShakerController:
             The shaker number (1-based)
         """
         self.__check_shaker_id(shaker)
-        return self.__serial_port.issue_action_command(f"ll:vd {shaker:03}")
+        return self.serial_port.issue_action_command(f"ll:vd {shaker:03}")
 
     @staticmethod
     def __check_shaker_id(shaker: int) -> None:
