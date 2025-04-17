@@ -79,7 +79,7 @@ class Cytomat:
 
     def reset_error_register(self) -> PlateShuttleSystemStatus:
         """Reset the error register"""
-        return self.__serial_port.issue_action_command("rs:be")
+        return self.serial_port.issue_action_command("rs:be")
 
     def wait_until_not_busy(
         self, timeout: float, poll_interval: float = 0.5
