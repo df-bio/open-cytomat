@@ -74,7 +74,7 @@ class SerialPort:
         return response
 
     @staticmethod
-    def __check_prefix_and_strip(response: str, expected_prefix: str) -> str:
+    def check_prefix_and_strip(response: str, expected_prefix: str) -> str:
         """
         Check if the response has the expected prefix, strip the prefix and whitespace
 
@@ -126,11 +126,11 @@ class SerialPort:
 
         if response.startswith("ok"):
             return PlateShuttleSystemStatus.from_hex_string(
-                self.__check_prefix_and_strip(response, "ok")
+                self.check_prefix_and_strip(response, "ok")
             )
         if response.startswith("er"):
             raise SerialCommunicationError.from_error_code(
-                int(self.__check_prefix_and_strip(response, "er"), base=16)
+                int(self.check_prefix_and_strip(response, "er"), base=16)
             )
         raise UnexpectedResponse(
             f"Expected response like 'ok XX' or 'er XX', got '{response}'"
@@ -166,6 +166,6 @@ class SerialPort:
                 f"Expected command like 'ch:xx' or 'ch:xx ...', got '{command}'"
             )
 
-        return self.__check_prefix_and_strip(
+        return self.check_prefix_and_strip(
             self.communicate(command), expected_prefix=command[3:5]
         )
