@@ -34,7 +34,7 @@ class SerialPort:
     def open(self) -> None:
         self.port.open()
 
-    def __communicate(self, command: str) -> str:
+    def communicate(self, command: str) -> str:
         """
         Send a command to the port and return the response string
 
@@ -122,7 +122,7 @@ class SerialPort:
         UnexpectedResponse
             If the response did not match 'ok XX' or 'er XX'
         """
-        response = self.__communicate(command)
+        response = self.communicate(command)
 
         if response.startswith("ok"):
             return PlateShuttleSystemStatus.from_hex_string(
@@ -167,5 +167,5 @@ class SerialPort:
             )
 
         return self.__check_prefix_and_strip(
-            self.__communicate(command), expected_prefix=command[3:5]
+            self.communicate(command), expected_prefix=command[3:5]
         )
