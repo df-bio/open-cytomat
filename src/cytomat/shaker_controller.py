@@ -21,7 +21,7 @@ class ShakerController:
         -------
         The shaker frequency
         """
-        self.__check_shaker_id(shaker)
+        self.check_shaker_id(shaker)
         return int(self.serial_port.issue_status_command(f"ch:pb {shaker + 19}"))
 
     def set_shaker_frequency(
@@ -37,7 +37,7 @@ class ShakerController:
         frequency
             The target frequency
         """
-        self.__check_shaker_id(shaker)
+        self.check_shaker_id(shaker)
         return self.serial_port.issue_action_command(
             f"se:pb {shaker + 19} {frequency:04}"
         )
@@ -59,7 +59,7 @@ class ShakerController:
         shaker
             The shaker number (1-based)
         """
-        self.__check_shaker_id(shaker)
+        self.check_shaker_id(shaker)
         return self.serial_port.issue_action_command(f"ll:va {shaker:03}")
 
     def stop_all_shakers(self) -> PlateShuttleSystemStatus:
@@ -75,10 +75,10 @@ class ShakerController:
         shaker
             The shaker number (1-based)
         """
-        self.__check_shaker_id(shaker)
+        self.check_shaker_id(shaker)
         return self.serial_port.issue_action_command(f"ll:vd {shaker:03}")
 
     @staticmethod
-    def __check_shaker_id(shaker: int) -> None:
+    def check_shaker_id(shaker: int) -> None:
         if shaker not in (1, 2):
             raise ValueError("Invalid shaker, must be 1 or 2")
