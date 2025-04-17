@@ -7,7 +7,13 @@ from cytomat.maintenance_controller import MaintenanceController
 from cytomat.plate_handler import PlateHandler
 from cytomat.serial_port import SerialPort
 from cytomat.shaker_controller import ShakerController
-from cytomat.status import ActionStatus, ErrorStatus, OverviewStatus, WarningStatus
+from cytomat.status import (
+    ActionStatus,
+    ErrorStatus,
+    OverviewStatus,
+    PlateShuttleSystemStatus,
+    WarningStatus,
+)
 from cytomat.utils import enum_to_dict
 
 
@@ -70,6 +76,10 @@ class Cytomat:
         return enum_to_dict(WarningStatus)[
             int(self.serial_port.issue_status_command("ch:bw"), base=16)
         ]
+
+    def reset_error_register(self) -> PlateShuttleSystemStatus:
+        """Reset the error register"""
+        return self.serial_port.issue_action_command("rs:be")
 
     def wait_until_not_busy(
         self, timeout: float, poll_interval: float = 0.5
