@@ -114,6 +114,9 @@ class ActionType(IntEnum):
     ReadBarcode = 0x18
     UnknownX1b = 0x1b
     UnknownX1c = 0x1c
+    """Assumptions:
+    0x1c is related to extending or retracting the shovel
+    """
 
 class ActionTarget(IntEnum):
     InitPosition = 1
