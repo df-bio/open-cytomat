@@ -112,7 +112,8 @@ class ActionType(IntEnum):
     MoveToBarcodeReader = 0x16
     CheckHandlerAtBarcodeReader = 0x17
     ReadBarcode = 0x18
-    Unknown = 0x1c
+    UnknownX1b = 0x1b
+    UnknownX1c = 0x1c
 
 class ActionTarget(IntEnum):
     InitPosition = 1
