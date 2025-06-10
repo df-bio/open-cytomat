@@ -69,7 +69,7 @@ class SerialPort:
                 char = self.port.read()
                 if not char:
                     raise TimeoutError(
-                        rf"Did not receive a '\r'-terminated response after {self.timeout} seconds"
+                        rf"Did not receive a '\r'-terminated response after {self.timeout} seconds. Captured {raw_response}."
                     )
                 raw_response += char
 
