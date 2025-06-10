@@ -2,6 +2,7 @@ import re
 from threading import Lock
 
 from serial import Serial
+from serial.serialutil import PARITY_NONE
 
 from cytomat.errors import InvalidCommand, SerialCommunicationError, UnexpectedResponse
 from cytomat.status import PlateShuttleSystemStatus
@@ -24,7 +25,7 @@ class SerialPort:
         timeout: float, seconds
             A :class:`TimeoutError` will be raised of read or write operations took longer than this duration
         """
-        self.port = Serial(port, timeout=timeout, write_timeout=timeout)
+        self.port = Serial(port, baudrate=9600, bytesize=8, stopbits=1, parity=PARITY_NONE, timeout=timeout, write_timeout=timeout)
         self.lock = Lock()
         self.timeout = timeout
 
