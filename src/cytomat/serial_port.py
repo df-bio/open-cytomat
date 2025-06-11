@@ -67,11 +67,11 @@ class SerialPort:
             self.port.write(raw_command)
             while not raw_response.endswith(b"\r"):
                 char = self.port.read()
+                raw_response += char
                 if not char:
                     raise TimeoutError(
-                        rf"Did not receive a '\r'-terminated response after {self.timeout} seconds. Captured {raw_response}."
+                        rf"Query: {command}, Error: Captured {char} as the last character of {raw_response}."
                     )
-                raw_response += char
 
         response: str = raw_response[:-1].decode("ascii")
         return response
