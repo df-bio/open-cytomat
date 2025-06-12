@@ -42,7 +42,7 @@ class Cytomat:
     """
 
     def __init__(self, serial_port: str):
-        self.serial_port = SerialPort(serial_port, timeout=5)
+        self.serial_port = SerialPort(serial_port, timeout=1)
         self.plate_handler = PlateHandler(self.serial_port)
         self.barcode_scanner = BarcodeScanner(self.serial_port)
         self.maintenance_controller = MaintenanceController(self.serial_port)
@@ -82,7 +82,7 @@ class Cytomat:
         return self.serial_port.issue_action_command("rs:be")
 
     def wait_until_not_busy(
-        self, timeout: float, poll_interval: float = 2
+        self, timeout: float, poll_interval: float = 0.5
     ) -> OverviewStatus:
         """
         Block the current thread until the device is not busy anymore.
