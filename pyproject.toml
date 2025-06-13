@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "open-cytomat"
-version = "0.3.0"
+version = "0.3.2"
 description = ""
 authors = [
     "Niklas Mertsch <niklas.mertsch@stud.uni-goettingen.de>",
