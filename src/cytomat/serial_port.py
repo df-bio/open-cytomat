@@ -1,4 +1,5 @@
 import re
+import traceback
 from threading import Lock
 
 from serial import Serial
@@ -159,6 +160,12 @@ class SerialPort:
         if not re.fullmatch("ch:[a-z]{2}.*", command):
             raise InvalidCommand(f"Expected command like 'ch:xx' or 'ch:xx ...', got '{command}'")
 
-        return self.check_prefix_and_strip(
-            self.communicate(command), expected_prefix=command[3:5]
-        )
+        try:
+            response = self.check_prefix_and_strip(self.communicate(command), expected_prefix=command[3:5])
+        except UnexpectedResponse as e:
+            print(f"Unexpected response while checking status: {e}")
+            traceback.print_exc()
+            print("Trying again")
+            response = self.check_prefix_and_strip(self.communicate(command), expected_prefix=command[3:5])
+
+        return response
