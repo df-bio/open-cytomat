@@ -54,3 +54,6 @@ bld/
 
 # IntelliJ IDEA
 .idea/
+
+# uv
+uv.lock
