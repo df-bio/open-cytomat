@@ -1,0 +1,13 @@
+<Feature xmlns="http://www.sila-standard.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Category="instruments" FeatureVersion="1.0" MaturityLevel="Draft" Originator="bio.differential" SiLA2Version="1.0" xsi:schemaLocation="http://www.sila-standard.org https://gitlab.com/SiLA2/sila_base/raw/master/schema/FeatureDefinition.xsd">
+  <Identifier>MaintenanceController</Identifier>
+  <DisplayName>Maintenance Controller</DisplayName>
+  <Description>Maintenance controller surface.</Description>
+  <Command>
+    <Identifier>Invoke</Identifier><DisplayName>Invoke</DisplayName><Description>Invoke a maintenance controller operation.</Description><Observable>No</Observable>
+    <Parameter><Identifier>Method</Identifier><DisplayName>Method</DisplayName><Description>Method name.</Description><DataType><Basic>String</Basic></DataType></Parameter>
+    <Parameter><Identifier>ArgumentsJson</Identifier><DisplayName>Arguments Json</DisplayName><Description>JSON args payload.</Description><DataType><Basic>String</Basic></DataType></Parameter>
+    <Response><Identifier>Result</Identifier><DisplayName>Result</DisplayName><Description>Result payload.</Description><DataType><Basic>String</Basic></DataType></Response>
+    <DefinedExecutionErrors><Identifier>CytomatError</Identifier></DefinedExecutionErrors>
+  </Command>
+  <DefinedExecutionError><Identifier>CytomatError</Identifier><DisplayName>Cytomat Error</DisplayName><Description>Command failed.</Description></DefinedExecutionError>
+</Feature>
