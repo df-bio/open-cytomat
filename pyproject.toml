@@ -14,6 +14,7 @@ include = [{ path = "src/cytomat/data/sample_config.json" }]
 [tool.poetry.dependencies]
 python = "^3.10"
 pyserial = "^3.5"
+sila2 = { version = "*", optional = true }
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.4.1"
@@ -21,6 +22,10 @@ pytest = "^7.4.0"
 
 [tool.poetry.scripts]
 post_install = "cytomat.post_install:post_install"
+cytomat-sila-server = "cytomat.sila2_adapter.server:main"
+
+[tool.poetry.extras]
+sila = ["sila2"]
 
 [build-system]
 requires = ["poetry-core"]
