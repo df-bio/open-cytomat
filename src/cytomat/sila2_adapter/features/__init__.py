@@ -14,12 +14,17 @@ from cytomat.sila2_adapter.features.plate_handler import (
     PLATE_HANDLER_FEATURE,
     PlateHandlerFeature,
 )
+from cytomat.sila2_adapter.features.shaker_controller import (
+    SHAKER_CONTROLLER_FEATURE,
+    ShakerControllerFeature,
+)
 
 FEATURE_BINDINGS = [
     (PLATE_HANDLER_FEATURE, PlateHandlerFeature),
     (BARCODE_SCANNER_FEATURE, BarcodeScannerFeature),
     (MAINTENANCE_CONTROLLER_FEATURE, MaintenanceControllerFeature),
     (CLIMATE_CONTROLLER_FEATURE, ClimateControllerFeature),
+    (SHAKER_CONTROLLER_FEATURE, ShakerControllerFeature),
 ]
 
 __all__ = ["FEATURE_BINDINGS"]
