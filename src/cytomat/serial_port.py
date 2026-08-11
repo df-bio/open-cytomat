@@ -1,12 +1,33 @@
+import logging
 import re
 from threading import Lock
 
 from serial import Serial
-from serial.serialutil import PARITY_NONE
+from serial.serialutil import PARITY_NONE, SerialException
+from serial.tools import list_ports
 
 from cytomat.errors import InvalidCommand, SerialCommunicationError, UnexpectedResponse
 from cytomat.status import PlateShuttleSystemStatus
 from cytomat.utils import lock_threading_lock
+
+logger = logging.getLogger(__name__)
+
+
+def first_usable_serial_port(*, timeout: float = 1.0) -> str | None:
+    for port in list_ports.comports():
+        logger.debug(f"Checking serial port candidate: {port.device}")
+        try:
+            serial_port = SerialPort(port.device, timeout=timeout)
+        except (SerialException, PermissionError) as exc:
+            logger.debug(f"Skipping serial port {port.device}: {exc}")
+            continue
+
+        serial_port.close()
+        logger.info(f"Using serial port: {port.device}")
+        return port.device
+
+    logger.debug("No usable serial ports found")
+    return None
 
 
 class SerialPort:
