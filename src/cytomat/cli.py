@@ -70,7 +70,7 @@ def main() -> None:
 
 def _connection_options(command: Callable[..., Any]) -> Callable[..., Any]:
     command = click.option(
-        "--port",
+        "--serial-port",
         type=str,
         default=None,
         help="Serial port. If omitted, COM_port is read from --config-file, then auto-detected when exactly one usable port is available.",
@@ -85,22 +85,30 @@ def _connection_options(command: Callable[..., Any]) -> Callable[..., Any]:
     return command
 
 
+
 @main.group("action", cls=AliasedGroup)
 @_connection_options
 @click.pass_context
-def action(ctx: click.Context, port: str | None, config_file: Path) -> None:
+def action(ctx: click.Context, serial_port: str | None, config_file: Path) -> None:
     """Run controller actions or initialize CLI config."""
-    ctx.ensure_object(dict)
-    ctx.obj["port"] = port
-    ctx.obj["config_file"] = config_file
+    root = ctx.find_root()
+    root.ensure_object(dict)
+    root.obj["serial_port"] = serial_port
+    root.obj["config_file"] = config_file
 
 
 main.add_alias("action", "a")
 
 
 @main.group("sila")
-def sila() -> None:
+@_connection_options
+@click.pass_context
+def sila(ctx: click.Context, serial_port: str | None, config_file: Path) -> None:
     """SiLA server commands."""
+    root = ctx.find_root()
+    root.ensure_object(dict)
+    root.obj["serial_port"] = serial_port
+    root.obj["config_file"] = config_file
 
 
 @sila.command("serve")
@@ -115,8 +123,7 @@ def sila() -> None:
     help="Directory for generated/loaded TLS certificates when not using --insecure.",
 )
 @click.option("--verbose", is_flag=True, default=False, help="Enable debug logging.")
-@click.option("--serial-port", required=True, type=str, help="Serial port (e.g. /dev/ttyUSB0, COM10).")
-def sila_serve(host: str, port: int, insecure: bool, cert_dir: Path, verbose: bool, serial_port: str) -> None:
+def sila_serve(host: str, port: int, insecure: bool, cert_dir: Path, verbose: bool) -> None:
     """Serve the Cytomat SiLA2 server."""
     from cytomat.sila2_adapter import server as sila_server
 
@@ -125,6 +132,7 @@ def sila_serve(host: str, port: int, insecure: bool, cert_dir: Path, verbose: bo
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
 
+    serial_port = _serial_port(click.get_current_context())
     cytomat = Cytomat(serial_port)
     sila_server.serve(
         cytomat=cytomat,
@@ -137,16 +145,13 @@ def sila_serve(host: str, port: int, insecure: bool, cert_dir: Path, verbose: bo
 
 
 @action.command("initialize")
-@click.option("--com-port", "com_port", type=str, required=False, help="Serial COM port to save as COM_port.")
-@click.option("--port", "com_port", type=str, required=False, help="Alias for --com-port.")
 @click.pass_context
-def initialize_config(ctx: click.Context, com_port: str | None) -> None:
+def initialize_config(ctx: click.Context) -> None:
     """Initialize/update config JSON with COM_port."""
-    state = ctx.find_object(dict) or {}
+    state = ctx.find_root().obj
     config_file = state.get("config_file", default_config_file())
     config = load_config(config_file)
-    if com_port is not None:
-        config.com_port = com_port
+    config.com_port = _serial_port(ctx)
     target = save_config(config, config_file)
     click.echo(f"Saved config: {target}")
     click.echo(f"COM_port={config.com_port}")
@@ -155,54 +160,39 @@ def initialize_config(ctx: click.Context, com_port: str | None) -> None:
 action.add_alias("initialize", "init")
 
 
-def _resolve_port(ctx: click.Context) -> str:
-    state = ctx.find_object(dict)
-    if state is None:
-        raise click.UsageError("Could not resolve action state from Click context")
 
-    cached = state.get("resolved_port")
-    if cached:
-        return cached
+def _serial_port(ctx: click.Context) -> str:
+    root = ctx.find_root()
+    root.ensure_object(dict)
+    state = root.obj
 
-    explicit_port = state.get("port")
-    if explicit_port:
-        state["resolved_port"] = explicit_port
-        return explicit_port
+    if state.get("serial_port"):
+        return state["serial_port"]
 
     config_file = state.get("config_file", default_config_file())
     configured_port = load_config(config_file).com_port
     if configured_port:
-        state["resolved_port"] = configured_port
+        state["serial_port"] = configured_port
         return configured_port
 
     discovered_ports = usable_serial_ports()
     if len(discovered_ports) == 1:
-        discovered_port = discovered_ports[0]
-        state["resolved_port"] = discovered_port
-        click.echo(f"Auto-detected serial port: {discovered_port}", err=True)
-        return discovered_port
+        state["serial_port"] = discovered_ports[0]
+        click.echo(f"Auto-detected serial port: {state['serial_port']}", err=True)
+        return state["serial_port"]
 
     if not discovered_ports:
         raise click.UsageError(
             "No serial port configured and no usable serial ports were auto-detected. "
-            "Pass --port, or set COM_port via `action initialize --com-port ...`."
+            "Pass --serial-port, or set COM_port via `action --serial-port ... initialize`."
         )
 
     raise click.UsageError(
         "Multiple usable serial ports found: "
         f"{', '.join(discovered_ports)}. "
-        "Pass --port, or set COM_port via `action initialize --com-port ...`."
+        "Pass --serial-port, or set COM_port via `action --serial-port ... initialize`."
     )
 
-
-def _resolve_cytomat(ctx: click.Context) -> Cytomat:
-    state = ctx.find_object(dict)
-    if state is None:
-        raise click.UsageError("Could not resolve action state from Click context")
-
-    if "cytomat" not in state:
-        state["cytomat"] = Cytomat(_resolve_port(ctx))
-    return state["cytomat"]
 
 
 def _kebab(name: str) -> str:
@@ -223,7 +213,12 @@ def _option_type(parameter: inspect.Parameter) -> click.ParamType | type[Any]:
 def _invoke_factory(controller_attr: str, method_name: str) -> Callable[..., None]:
     def _invoke(**kwargs: Any) -> None:
         ctx = click.get_current_context()
-        cytomat = _resolve_cytomat(ctx)
+        root = ctx.find_root()
+        root.ensure_object(dict)
+        state = root.obj
+        if "cytomat" not in state:
+            state["cytomat"] = Cytomat(_serial_port(ctx))
+        cytomat = state["cytomat"]
         controller = getattr(cytomat, controller_attr)
         method = getattr(controller, method_name)
         result = method(**kwargs)
