@@ -1,3 +1,32 @@
+[project]
+name = "open-cytomat"
+version = "0.3.3"
+description = ""
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "Niklas Mertsch", email = "niklas.mertsch@stud.uni-goettingen.de" },
+    { name = "rsoeldner", email = "r.soeldner@gmail.com" },
+    { name = "Thiago Meyer", email = "tiagmey@gmail.com" },
+]
+dependencies = [
+    "pyserial>=3.5,<4",
+    "click>=8.1.7,<9",
+    "pydantic>=2.9.2,<3",
+]
+
+[project.scripts]
+open-cytomat = "cytomat.cli:main"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.4.1,<2",
+    "pytest>=7.4.0,<8",
+]
+
+[tool.uv]
+default-groups = ["dev"]
+
 [tool.poetry]
 name = "open-cytomat"
 version = "0.3.3"
