@@ -14,6 +14,7 @@ include = [{ path = "src/cytomat/data/sample_config.json" }]
 [tool.poetry.dependencies]
 python = "^3.10"
 pyserial = "^3.5"
+click = "^8.1.7"
 pydantic = "^2.9.2"
 
 [tool.poetry.group.dev.dependencies]
@@ -22,6 +23,7 @@ pytest = "^7.4.0"
 
 [tool.poetry.scripts]
 post_install = "cytomat.post_install:post_install"
+open-cytomat = "cytomat.cli:main"
 
 [build-system]
 requires = ["poetry-core"]
