@@ -22,7 +22,6 @@ mypy = "^1.4.1"
 pytest = "^7.4.0"
 
 [tool.poetry.scripts]
-post_install = "cytomat.post_install:post_install"
 open-cytomat = "cytomat.cli:main"
 
 [build-system]
