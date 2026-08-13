@@ -40,7 +40,5 @@ class CytomatFeatureBase(FeatureImplementationBase):
     def __init__(self, parent_server: SilaServer, cytomat: Cytomat, *, feature: Feature) -> None:
         super().__init__(parent_server)
         self._cytomat: Cytomat = cytomat
+        self._cmd_context = CommandExecutionContext(cytomat=self._cytomat)
         self._error_mapper = ErrorMapper(feature=feature)
-
-    def _command_execution(self, operation: str) -> CommandExecutionContext:
-        return CommandExecutionContext(cytomat=self._cytomat, operation=operation)
