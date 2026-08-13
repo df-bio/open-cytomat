@@ -1,4 +1,3 @@
-import argparse
 import logging
 import signal
 import threading
@@ -6,9 +5,6 @@ import uuid
 from importlib import resources
 
 from cytomat import Cytomat
-
-HOST = "0.0.0.0"
-DEFAULT_PORT = 50052
 
 logger = logging.getLogger(__name__)
 
@@ -85,33 +81,3 @@ def serve(
             logger.info("Stopping Cytomat SiLA server...")
             server.stop(grace_period=2)
         cytomat.serial_port.close()
-
-
-def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Run the Cytomat SiLA2 server.")
-
-    server_options = parser.add_argument_group("serve/s options")
-    server_options.add_argument("--host", default=HOST)
-    server_options.add_argument("--port", type=int, default=DEFAULT_PORT)
-    server_options.add_argument("--insecure", action="store_true", help="Use insecure transport.")
-
-    parser.add_argument("--verbose", action="store_true", help="Enable debug logging.")
-    parser.add_argument("--serial-port", required=True, help="Serial port (e.g. /dev/ttyUSB0, COM10).")
-    return parser
-
-
-def main() -> None:
-    args = _build_parser().parse_args()
-    logging.basicConfig(
-        level=logging.DEBUG if args.verbose else logging.INFO,
-        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-    )
-
-    cytomat = Cytomat(args.serial_port)
-    serve(
-        cytomat=cytomat,
-        host=args.host,
-        port=args.port,
-        insecure=args.insecure,
-        serial_port=args.serial_port,
-    )
