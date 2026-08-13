@@ -53,10 +53,17 @@ class SerialPort:
         port : str
             The address of the port (e.g. "COM3" on Windows or "/dev/ttyACM0" on Unix)
         timeout: float, seconds
-            A :class:`TimeoutError` will be raised of read or write operations took longer than this duration
+            A :class:`TimeoutError` is raised when read or write operations
+            take longer than this duration
         """
         self.port = Serial(
-            port, baudrate=9600, bytesize=8, stopbits=1, parity=PARITY_NONE, timeout=timeout, write_timeout=timeout
+            port,
+            baudrate=9600,
+            bytesize=8,
+            stopbits=1,
+            parity=PARITY_NONE,
+            timeout=timeout,
+            write_timeout=timeout,
         )
         self.lock = Lock()
         self.timeout = timeout
@@ -90,7 +97,9 @@ class SerialPort:
         """
         with lock_threading_lock(self.lock, timeout=self.timeout):
             if self.port.in_waiting:
-                raise SerialCommunicationError("There were unread bytes in the input buffer")
+                raise SerialCommunicationError(
+                    "There were unread bytes in the input buffer"
+                )
 
             raw_command: bytes = command.encode("ascii") + b"\r"
             raw_response: bytes = b""
@@ -100,7 +109,11 @@ class SerialPort:
                 raw_response += char
                 if not char:
                     raise TimeoutError(
-                        rf"Query: {command}, Error: Captured {char} as the last character of {raw_response}."
+                        "Query: "
+                        f"{command}, "
+                        "Error: captured "
+                        f"{char!r} as the last character of "
+                        f"{raw_response!r}."
                     )
 
         response: str = raw_response[:-1].decode("ascii")
@@ -130,7 +143,9 @@ class SerialPort:
         """
         if response.startswith(expected_prefix):
             return response[len(expected_prefix) :].strip()
-        raise UnexpectedResponse(f"Expected response prefix '{expected_prefix}', got response '{response}'")
+        raise UnexpectedResponse(
+            f"Expected response prefix '{expected_prefix}', got response '{response}'"
+        )
 
     def issue_action_command(self, command: str) -> PlateShuttleSystemStatus:
         """
@@ -156,14 +171,21 @@ class SerialPort:
         response = self.communicate(command)
 
         if response.startswith("ok"):
-            return PlateShuttleSystemStatus.from_hex_string(self.check_prefix_and_strip(response, "ok"))
+            return PlateShuttleSystemStatus.from_hex_string(
+                self.check_prefix_and_strip(response, "ok")
+            )
         if response.startswith("er"):
-            raise SerialCommunicationError.from_error_code(int(self.check_prefix_and_strip(response, "er"), base=16))
-        raise UnexpectedResponse(f"Expected response like 'ok XX' or 'er XX', got '{response}'")
+            raise SerialCommunicationError.from_error_code(
+                int(self.check_prefix_and_strip(response, "er"), base=16)
+            )
+        raise UnexpectedResponse(
+            f"Expected response like 'ok XX' or 'er XX', got '{response}'"
+        )
 
     def issue_status_command(self, command: str) -> str:
         """
-        Issue a status command in the form of 'ch:xx' or 'ch:xx ...', which results in responses like 'xx ...'.
+        Issue a status command in the form of 'ch:xx' or 'ch:xx ...',
+        which results in responses like 'xx ...'.
         Returns the response without the prefix
 
         Parameters
@@ -187,12 +209,18 @@ class SerialPort:
         '01'  # full response was 'bs 01'
         """
         if not re.fullmatch("ch:[a-z]{2}.*", command):
-            raise InvalidCommand(f"Expected command like 'ch:xx' or 'ch:xx ...', got '{command}'")
+            raise InvalidCommand(
+                f"Expected command like 'ch:xx' or 'ch:xx ...', got '{command}'"
+            )
 
         try:
-            response = self.check_prefix_and_strip(self.communicate(command), expected_prefix=command[3:5])
+            response = self.check_prefix_and_strip(
+                self.communicate(command), expected_prefix=command[3:5]
+            )
         except UnexpectedResponse as e:
             print(f"Unexpected response while checking status: {e}. Trying again.")
-            response = self.check_prefix_and_strip(self.communicate(command), expected_prefix=command[3:5])
+            response = self.check_prefix_and_strip(
+                self.communicate(command), expected_prefix=command[3:5]
+            )
 
         return response

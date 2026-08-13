@@ -2,7 +2,7 @@ import inspect
 from collections import defaultdict
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import click
 
@@ -43,7 +43,9 @@ class AliasedGroup(click.Group):
         resolved = self._alias_to_primary.get(cmd_name, cmd_name)
         return super().get_command(ctx, resolved)
 
-    def format_commands(self, ctx: click.Context, formatter: click.HelpFormatter) -> None:
+    def format_commands(
+        self, ctx: click.Context, formatter: click.HelpFormatter
+    ) -> None:
         rows: list[tuple[str, str]] = []
         aliases_by_primary: dict[str, list[str]] = defaultdict(list)
         for alias, primary in self._alias_to_primary.items():
@@ -54,7 +56,9 @@ class AliasedGroup(click.Group):
             if command is None or command.hidden:
                 continue
             aliases = sorted(aliases_by_primary.get(subcommand, []))
-            label = subcommand if not aliases else f"{subcommand} [{', '.join(aliases)}]"
+            label = (
+                subcommand if not aliases else f"{subcommand} [{', '.join(aliases)}]"
+            )
             rows.append((label, command.get_short_help_str()))
 
         if rows:
@@ -72,7 +76,10 @@ def _connection_options(command: Callable[..., Any]) -> Callable[..., Any]:
         "--port",
         type=str,
         default=None,
-        help="Serial port. If omitted, COM_port is read from --config-file, then auto-detected when exactly one usable port is available.",
+        help=(
+            "Serial port. If omitted, COM_port is read from --config-file, "
+            "then auto-detected when exactly one usable port is available."
+        ),
     )(command)
     command = click.option(
         "--config-file",
@@ -98,8 +105,16 @@ main.add_alias("action", "a")
 
 
 @action.command("initialize")
-@click.option("--com-port", "com_port", type=str, required=False, help="Serial COM port to save as COM_port.")
-@click.option("--port", "com_port", type=str, required=False, help="Alias for --com-port.")
+@click.option(
+    "--com-port",
+    "com_port",
+    type=str,
+    required=False,
+    help="Serial COM port to save as COM_port.",
+)
+@click.option(
+    "--port", "com_port", type=str, required=False, help="Alias for --com-port."
+)
 @click.pass_context
 def initialize_config(ctx: click.Context, com_port: str | None) -> None:
     """Initialize/update config JSON with COM_port."""
@@ -113,7 +128,7 @@ def initialize_config(ctx: click.Context, com_port: str | None) -> None:
     click.echo(f"COM_port={config.com_port}")
 
 
-action.add_alias("initialize", "init")
+cast(AliasedGroup, action).add_alias("initialize", "init")
 
 
 def _resolve_port(ctx: click.Context) -> str:
@@ -198,7 +213,9 @@ def _register_controller_commands() -> None:
     for group_name, controller_attr, group_alias, controller_cls in CONTROLLERS:
         group = AliasedGroup(group_name)
 
-        for method_name, method in inspect.getmembers(controller_cls, predicate=inspect.isfunction):
+        for method_name, method in inspect.getmembers(
+            controller_cls, predicate=inspect.isfunction
+        ):
             if method_name.startswith("_"):
                 continue
 
@@ -207,7 +224,11 @@ def _register_controller_commands() -> None:
                 parameter
                 for parameter in signature.parameters.values()
                 if parameter.name != "self"
-                and parameter.kind in (inspect.Parameter.POSITIONAL_OR_KEYWORD, inspect.Parameter.KEYWORD_ONLY)
+                and parameter.kind
+                in (
+                    inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    inspect.Parameter.KEYWORD_ONLY,
+                )
             ]
 
             callback = _invoke_factory(controller_attr, method_name)
@@ -215,12 +236,20 @@ def _register_controller_commands() -> None:
                 callback = click.option(
                     f"--{_kebab(parameter.name)}",
                     required=parameter.default is inspect._empty,
-                    default=None if parameter.default is inspect._empty else parameter.default,
+                    default=(
+                        None
+                        if parameter.default is inspect._empty
+                        else parameter.default
+                    ),
                     type=_option_type(parameter),
                 )(callback)
 
             command_name = _kebab(method_name)
-            command_help = (method.__doc__ or "").strip().splitlines()[0] if method.__doc__ else None
+            command_help = (
+                (method.__doc__ or "").strip().splitlines()[0]
+                if method.__doc__
+                else None
+            )
             command = click.command(name=command_name, help=command_help)(callback)
             group.add_command(command)
 
@@ -228,8 +257,9 @@ def _register_controller_commands() -> None:
             if alias:
                 group.add_alias(command_name, alias)
 
-        action.add_command(group)
-        action.add_alias(group_name, group_alias)
+        action_group = cast(AliasedGroup, action)
+        action_group.add_command(group)
+        action_group.add_alias(group_name, group_alias)
 
 
 _register_controller_commands()
