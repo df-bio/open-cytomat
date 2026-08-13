@@ -65,6 +65,12 @@ class AliasedGroup(click.Group):
                 formatter.write_dl(rows)
 
 
+def _add_alias(group: click.Group, primary: str, alias: str) -> None:
+    if not isinstance(group, AliasedGroup):
+        raise TypeError(f"Group {group.name!r} does not support aliases")
+    group.add_alias(primary, alias)
+
+
 @click.group(cls=AliasedGroup)
 @click.option(
     "--serial-port",
@@ -108,7 +114,7 @@ def action() -> None:
     """Run controller actions or initialize CLI config."""
 
 
-main.add_alias("action", "a")
+_add_alias(main, "action", "a")
 
 
 @main.group("sila", cls=AliasedGroup)
@@ -116,7 +122,7 @@ def sila() -> None:
     """SiLA server commands."""
 
 
-main.add_alias("sila", "s")
+_add_alias(main, "sila", "s")
 
 
 @sila.command("serve")
@@ -151,7 +157,7 @@ def initialize_config() -> None:
     click.echo(f"COM_port={config.com_port}")
 
 
-action.add_alias("initialize", "init")
+_add_alias(action, "initialize", "init")
 
 
 def _get_serial_port(state: dict[str, Any]) -> str:
@@ -259,7 +265,7 @@ def _register_controller_commands() -> None:
                 group.add_alias(command_name, alias)
 
         action.add_command(group)
-        action.add_alias(group_name, group_alias)
+        _add_alias(action, group_name, group_alias)
 
 
 _register_controller_commands()
