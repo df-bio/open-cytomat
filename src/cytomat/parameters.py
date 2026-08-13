@@ -1,21 +1,25 @@
-from cytomat.utils import lazy_load_config_file
+from __future__ import annotations
+
+from pathlib import Path
+
+from cytomat.config import CytomatConfig, load_config
 
 
 class Parameters:
+    COM_port: str = CytomatConfig().com_port
+    steps_per_mm_h: int = 170
+    max_steps_h: int = 0
+    steps_per_mm_x: int = 2432
+    max_steps_x: int = 0
+    steps_per_mm_shovel: int = 173
+    max_steps_shovel: int = 24000
+    steps_per_deg_turn: int = 173
+    max_deg_turn: int = 180
+    lid_holder_slot: int | None = None
+    pipet_station_slot: int = 27
+    measurement_slot: int = 6
 
     @classmethod
-    def load(cls):
-        python_data = lazy_load_config_file()
-        if python_data:
-            cls.COM_port = python_data["COM_port"]
-            cls.steps_per_mm_h = python_data["steps_per_mm_h"]
-            cls.max_steps_h = python_data["max_steps_h"]
-            cls.steps_per_mm_x = python_data["steps_per_mm_x"]
-            cls.max_steps_x = python_data["max_steps_x"]
-            cls.steps_per_mm_shovel = python_data["steps_per_mm_shovel"]
-            cls.max_steps_shovel = python_data["max_steps_shovel"]
-            cls.steps_per_deg_turn = python_data["steps_per_deg_turn"]
-            cls.max_deg_turn = python_data["max_deg_turn"]
-            cls.lid_holder_slot = python_data["lid_holder_slot"]
-            cls.pipet_station_slot = python_data["pipet_station_slot"]
-            cls.measurement_slot = python_data["measurement_slot"]
+    def load(cls, config_file: Path | None = None) -> None:
+        config = load_config(config_file)
+        cls.COM_port = config.com_port
