@@ -57,7 +57,7 @@ class TestCli:
 
         result = runner.invoke(
             cli.main,
-            ["action", "--config-file", str(config_file), "initialize", "--port", "COM11"],
+            ["action", "--config-file", str(config_file), "--serial-port", "COM11", "initialize"],
         )
 
         assert result.exit_code == 0
@@ -71,7 +71,7 @@ class TestCli:
             cli.main,
             [
                 "action",
-                "--port",
+                "--serial-port",
                 "COM3",
                 "plate-handler",
                 "move-plate-from-slot-to-transfer-station",
@@ -86,7 +86,7 @@ class TestCli:
     def test_shortcuts_work_for_group_and_command_alias(self) -> None:
         runner = CliRunner()
 
-        result = runner.invoke(cli.main, ["a", "--port", "COM3", "ph", "door-open"])
+        result = runner.invoke(cli.main, ["a", "--serial-port", "COM3", "ph", "door-open"])
 
         assert result.exit_code == 0
         assert "door-opened" in result.output
@@ -115,6 +115,27 @@ class TestCli:
         assert "Auto-detected serial port: COM42" in result.output
         assert FakeCytomat.last_serial_port == "COM42"
 
+    def test_fails_when_no_usable_ports_found_without_explicit_configuration(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        runner = CliRunner()
+        config_file = tmp_path / "config.json"
+        monkeypatch.setattr(cli, "usable_serial_ports", lambda: [])
+
+        result = runner.invoke(
+            cli.main,
+            [
+                "action",
+                "--config-file",
+                str(config_file),
+                "plate-handler",
+                "door-open",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "No serial port configured and no usable serial ports were auto-detected" in result.output
+
     def test_fails_when_multiple_usable_ports_found_without_explicit_configuration(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
     ) -> None:
@@ -135,6 +156,49 @@ class TestCli:
 
         assert result.exit_code != 0
         assert "Multiple usable serial ports found: COM4, COM7" in result.output
+
+    def test_explicit_port_wins_over_config_and_auto_detect(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        runner = CliRunner()
+        config_file = tmp_path / "config.json"
+        config_file.write_text(json.dumps({"COM_port": "COM9"}), encoding="utf-8")
+        monkeypatch.setattr(cli, "usable_serial_ports", lambda: ["COM42"])
+
+        result = runner.invoke(
+            cli.main,
+            [
+                "action",
+                "--config-file",
+                str(config_file),
+                "--serial-port",
+                "COM3",
+                "plate-handler",
+                "door-open",
+            ],
+        )
+
+        assert result.exit_code == 0
+        assert FakeCytomat.last_serial_port == "COM3"
+
+    def test_config_port_used_when_explicit_port_missing(self, tmp_path: Path) -> None:
+        runner = CliRunner()
+        config_file = tmp_path / "config.json"
+        config_file.write_text(json.dumps({"COM_port": "COM9"}), encoding="utf-8")
+
+        result = runner.invoke(
+            cli.main,
+            [
+                "action",
+                "--config-file",
+                str(config_file),
+                "plate-handler",
+                "door-open",
+            ],
+        )
+
+        assert result.exit_code == 0
+        assert FakeCytomat.last_serial_port == "COM9"
 
     def test_help_shows_aliases_inline_without_duplicate_entries(self) -> None:
         runner = CliRunner()
@@ -165,9 +229,9 @@ class TestCli:
             cli.main,
             [
                 "sila",
-                "serve",
                 "--serial-port",
                 "COM7",
+                "serve",
                 "--host",
                 "127.0.0.1",
                 "--port",
