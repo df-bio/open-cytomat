@@ -1,0 +1,100 @@
+<Feature xmlns="http://www.sila-standard.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Category="instruments" FeatureVersion="1.0" MaturityLevel="Draft" Originator="bio.differential" SiLA2Version="1.0" xsi:schemaLocation="http://www.sila-standard.org https://gitlab.com/SiLA2/sila_base/raw/master/schema/FeatureDefinition.xsd">
+  <Identifier>SystemStatus</Identifier>
+  <DisplayName>System Status</DisplayName>
+  <Description>Read and reset Cytomat status registers.</Description>
+
+  <DataTypeDefinition>
+    <Identifier>PlateShuttleSystemStatusType</Identifier>
+    <DisplayName>Plate Shuttle System Status</DisplayName>
+    <Description>Plate shuttle system status bits.</Description>
+    <DataType>
+      <Structure>
+        <Element><Identifier>TransferStationOccupied</Identifier><DisplayName>Transfer Station Occupied</DisplayName><Description>Transfer station occupancy.</Description><DataType><Basic>Boolean</Basic></DataType></Element>
+        <Element><Identifier>DeviceDoorOpen</Identifier><DisplayName>Device Door Open</DisplayName><Description>Device door state.</Description><DataType><Basic>Boolean</Basic></DataType></Element>
+        <Element><Identifier>TransferDoorOpen</Identifier><DisplayName>Transfer Door Open</DisplayName><Description>Transfer door state.</Description><DataType><Basic>Boolean</Basic></DataType></Element>
+        <Element><Identifier>ShovelOccupied</Identifier><DisplayName>Shovel Occupied</DisplayName><Description>Shovel occupancy.</Description><DataType><Basic>Boolean</Basic></DataType></Element>
+        <Element><Identifier>Error</Identifier><DisplayName>Error</DisplayName><Description>Error bit.</Description><DataType><Basic>Boolean</Basic></DataType></Element>
+        <Element><Identifier>Warning</Identifier><DisplayName>Warning</DisplayName><Description>Warning bit.</Description><DataType><Basic>Boolean</Basic></DataType></Element>
+        <Element><Identifier>Ready</Identifier><DisplayName>Ready</DisplayName><Description>Ready bit.</Description><DataType><Basic>Boolean</Basic></DataType></Element>
+        <Element><Identifier>Busy</Identifier><DisplayName>Busy</DisplayName><Description>Busy bit.</Description><DataType><Basic>Boolean</Basic></DataType></Element>
+      </Structure>
+    </DataType>
+  </DataTypeDefinition>
+
+  <DataTypeDefinition>
+    <Identifier>OverviewStatusType</Identifier>
+    <DisplayName>Overview Status</DisplayName>
+    <Description>Global command and occupancy overview bits.</Description>
+    <DataType>
+      <Structure>
+        <Element><Identifier>CommandInProcess</Identifier><DisplayName>Command In Process</DisplayName><Description>Command in process.</Description><DataType><Basic>Boolean</Basic></DataType></Element>
+        <Element><Identifier>CommandExecutedDeviceBusy</Identifier><DisplayName>Command Executed Device Busy</DisplayName><Description>Command completed but device still busy.</Description><DataType><Basic>Boolean</Basic></DataType></Element>
+        <Element><Identifier>WarningPending</Identifier><DisplayName>Warning Pending</DisplayName><Description>Warning pending.</Description><DataType><Basic>Boolean</Basic></DataType></Element>
+        <Element><Identifier>ErrorPending</Identifier><DisplayName>Error Pending</DisplayName><Description>Error pending.</Description><DataType><Basic>Boolean</Basic></DataType></Element>
+        <Element><Identifier>ShovelOccupied</Identifier><DisplayName>Shovel Occupied</DisplayName><Description>Shovel occupied.</Description><DataType><Basic>Boolean</Basic></DataType></Element>
+        <Element><Identifier>AutoLiftDoorOpen</Identifier><DisplayName>Auto Lift Door Open</DisplayName><Description>Autolift door state.</Description><DataType><Basic>Boolean</Basic></DataType></Element>
+        <Element><Identifier>DeviceDoorOpen</Identifier><DisplayName>Device Door Open</DisplayName><Description>Device door state.</Description><DataType><Basic>Boolean</Basic></DataType></Element>
+        <Element><Identifier>TransferStationOccupied</Identifier><DisplayName>Transfer Station Occupied</DisplayName><Description>Transfer station occupancy.</Description><DataType><Basic>Boolean</Basic></DataType></Element>
+      </Structure>
+    </DataType>
+  </DataTypeDefinition>
+
+  <DataTypeDefinition>
+    <Identifier>ActionStatusType</Identifier>
+    <DisplayName>Action Status</DisplayName>
+    <Description>Current low-level action details.</Description>
+    <DataType>
+      <Structure>
+        <Element><Identifier>Type</Identifier><DisplayName>Type</DisplayName><Description>Action type code.</Description><DataType><Basic>Integer</Basic></DataType></Element>
+        <Element><Identifier>Target</Identifier><DisplayName>Target</DisplayName><Description>Action target code.</Description><DataType><Basic>Integer</Basic></DataType></Element>
+      </Structure>
+    </DataType>
+  </DataTypeDefinition>
+
+  <DataTypeDefinition>
+    <Identifier>ErrorStatusType</Identifier>
+    <DisplayName>Error Status</DisplayName>
+    <Description>Error register status code.</Description>
+    <DataType>
+      <Structure>
+        <Element><Identifier>Error</Identifier><DisplayName>Error</DisplayName><Description>Error status code.</Description><DataType><Basic>Integer</Basic></DataType></Element>
+      </Structure>
+    </DataType>
+  </DataTypeDefinition>
+
+  <DataTypeDefinition>
+    <Identifier>WarningStatusType</Identifier>
+    <DisplayName>Warning Status</DisplayName>
+    <Description>Warning register status code.</Description>
+    <DataType>
+      <Structure>
+        <Element><Identifier>Warning</Identifier><DisplayName>Warning</DisplayName><Description>Warning status code.</Description><DataType><Basic>Integer</Basic></DataType></Element>
+      </Structure>
+    </DataType>
+  </DataTypeDefinition>
+
+  <DataTypeDefinition>
+    <Identifier>StatusType</Identifier>
+    <DisplayName>Status</DisplayName>
+    <Description>Full Cytomat status snapshot.</Description>
+    <DataType>
+      <Structure>
+        <Element><Identifier>PlateShuttleSystem</Identifier><DisplayName>Plate Shuttle System</DisplayName><Description>Plate shuttle subsystem status.</Description><DataType><DataTypeIdentifier>PlateShuttleSystemStatusType</DataTypeIdentifier></DataType></Element>
+        <Element><Identifier>Overview</Identifier><DisplayName>Overview</DisplayName><Description>Global overview status.</Description><DataType><DataTypeIdentifier>OverviewStatusType</DataTypeIdentifier></DataType></Element>
+        <Element><Identifier>Action</Identifier><DisplayName>Action</DisplayName><Description>Current action status.</Description><DataType><DataTypeIdentifier>ActionStatusType</DataTypeIdentifier></DataType></Element>
+        <Element><Identifier>Error</Identifier><DisplayName>Error</DisplayName><Description>Error status code.</Description><DataType><Basic>Integer</Basic></DataType></Element>
+        <Element><Identifier>Warning</Identifier><DisplayName>Warning</DisplayName><Description>Warning status code.</Description><DataType><Basic>Integer</Basic></DataType></Element>
+      </Structure>
+    </DataType>
+  </DataTypeDefinition>
+
+  <Command><Identifier>GetStatus</Identifier><DisplayName>Get Status</DisplayName><Description>Read full status snapshot.</Description><Observable>No</Observable><Response><Identifier>Status</Identifier><DisplayName>Status</DisplayName><Description>Status payload.</Description><DataType><DataTypeIdentifier>StatusType</DataTypeIdentifier></DataType></Response><DefinedExecutionErrors><Identifier>CytomatError</Identifier></DefinedExecutionErrors></Command>
+  <Command><Identifier>GetPlateShuttleSystemStatus</Identifier><DisplayName>Get Plate Shuttle System Status</DisplayName><Description>Read plate shuttle system status bits.</Description><Observable>No</Observable><Response><Identifier>Status</Identifier><DisplayName>Status</DisplayName><Description>Status payload.</Description><DataType><DataTypeIdentifier>PlateShuttleSystemStatusType</DataTypeIdentifier></DataType></Response><DefinedExecutionErrors><Identifier>CytomatError</Identifier></DefinedExecutionErrors></Command>
+  <Command><Identifier>GetOverviewStatus</Identifier><DisplayName>Get Overview Status</DisplayName><Description>Read overview status bits.</Description><Observable>No</Observable><Response><Identifier>Status</Identifier><DisplayName>Status</DisplayName><Description>Status payload.</Description><DataType><DataTypeIdentifier>OverviewStatusType</DataTypeIdentifier></DataType></Response><DefinedExecutionErrors><Identifier>CytomatError</Identifier></DefinedExecutionErrors></Command>
+  <Command><Identifier>GetActionStatus</Identifier><DisplayName>Get Action Status</DisplayName><Description>Read action status codes.</Description><Observable>No</Observable><Response><Identifier>Status</Identifier><DisplayName>Status</DisplayName><Description>Status payload.</Description><DataType><DataTypeIdentifier>ActionStatusType</DataTypeIdentifier></DataType></Response><DefinedExecutionErrors><Identifier>CytomatError</Identifier></DefinedExecutionErrors></Command>
+  <Command><Identifier>GetErrorStatus</Identifier><DisplayName>Get Error Status</DisplayName><Description>Read error register code.</Description><Observable>No</Observable><Response><Identifier>Status</Identifier><DisplayName>Status</DisplayName><Description>Status payload.</Description><DataType><DataTypeIdentifier>ErrorStatusType</DataTypeIdentifier></DataType></Response><DefinedExecutionErrors><Identifier>CytomatError</Identifier></DefinedExecutionErrors></Command>
+  <Command><Identifier>GetWarningStatus</Identifier><DisplayName>Get Warning Status</DisplayName><Description>Read warning register code.</Description><Observable>No</Observable><Response><Identifier>Status</Identifier><DisplayName>Status</DisplayName><Description>Status payload.</Description><DataType><DataTypeIdentifier>WarningStatusType</DataTypeIdentifier></DataType></Response><DefinedExecutionErrors><Identifier>CytomatError</Identifier></DefinedExecutionErrors></Command>
+  <Command><Identifier>ResetErrorRegister</Identifier><DisplayName>Reset Error Register</DisplayName><Description>Reset error register and return plate shuttle status bits.</Description><Observable>No</Observable><Response><Identifier>Status</Identifier><DisplayName>Status</DisplayName><Description>Status payload.</Description><DataType><DataTypeIdentifier>PlateShuttleSystemStatusType</DataTypeIdentifier></DataType></Response><DefinedExecutionErrors><Identifier>CytomatError</Identifier></DefinedExecutionErrors></Command>
+
+  <DefinedExecutionError><Identifier>CytomatError</Identifier><DisplayName>Cytomat Error</DisplayName><Description>Command failed.</Description></DefinedExecutionError>
+</Feature>
