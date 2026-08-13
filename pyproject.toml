@@ -21,7 +21,11 @@ open-cytomat = "cytomat.cli:main"
 
 [dependency-groups]
 dev = [
+    "black>=24.10.0,<25",
+    "flake8>=7.1.1,<8",
+    "isort>=5.13.2,<6",
     "mypy>=1.4.1,<2",
+    "pre-commit>=4.0.1,<5",
     "pytest>=7.4.0,<8",
 ]
 
@@ -53,7 +57,11 @@ pydantic = "^2.9.2"
 sila2 = { version = "*", optional = true }
 
 [tool.poetry.group.dev.dependencies]
+black = "^24.10.0"
+flake8 = "^7.1.1"
+isort = "^5.13.2"
 mypy = "^1.4.1"
+pre-commit = "^4.0.1"
 pytest = "^7.4.0"
 
 [tool.poetry.scripts]
@@ -69,6 +77,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [[tool.mypy.overrides]]
+module = ["serial", "serial.*"]
 ignore_missing_imports = true
 
 [tool.isort]
