@@ -284,18 +284,18 @@ class PlateHandler:
         self.reset_handler_position()
         self.move_x_to_slot(17)
         self.rotate_handler_to_slot(1)
-        self.run_height_in_absolute_mm(26)
+        return self.run_height_in_absolute_mm(26)
 
     def drop_lid(self) -> PlateShuttleSystemStatus:
         self.goto_lid_drop_position()
         self.run_shovel_in_absolute_mm(145)
-        self.run_height_in_absolute_mm(18)
+        return self.run_height_in_absolute_mm(18)
 
     def pick_lid(self) -> PlateShuttleSystemStatus:
         self.goto_lid_drop_position()
         self.run_height_in_absolute_mm(18)
         self.run_shovel_in_absolute_mm(150)
-        self.run_height_in_absolute_mm(26)
+        return self.run_height_in_absolute_mm(26)
 
     def run_turn_in_relative_degrees(self, deg: float) -> PlateShuttleSystemStatus:
         """
