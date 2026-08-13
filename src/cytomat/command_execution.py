@@ -23,7 +23,7 @@ class CommandExecutionContext:
         self._timeout = timeout
         self._poll_interval = poll_interval
         self._operation = ""
-        self._final_status: Status | None = None
+        self._last_status: Status | None = None
 
     def __call__(self, operation: str) -> Self:
         self._operation = operation
@@ -96,7 +96,7 @@ class CommandExecutionContext:
         if not self._operation:
             raise RuntimeError("Operation must be set before entering command execution context")
 
-        self._final_status = None
+        self._last_status = None
         logger.debug(f"{self._log_prefix()} begin command execution")
         return self
 
@@ -127,7 +127,7 @@ class CommandExecutionContext:
             try:
                 new_status = next(iterator)
             except StopIteration as stop:
-                self._final_status = stop.value
+                self._last_status = stop.value
                 logger.debug(
                     f"{self._log_prefix()} Finished: action={self._format_action(stop.value)}, "
                     f"overview={self._overview_active(stop.value.overview)}"
