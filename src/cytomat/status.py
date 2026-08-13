@@ -36,7 +36,7 @@ class OverviewStatus(NamedTuple):
 
     @classmethod
     def from_hex_string(cls, hex_byte: str) -> OverviewStatus:
-        """Create an instance from the hex string (e.g. ``'F1'``)"""
+        """Create an instance from the hex string (e.g. ``'F1'``)."""
         value = int(hex_byte, base=16)
         return cls(
             command_in_process=bool(value & 0x01),
@@ -131,7 +131,7 @@ class ActionStatus(NamedTuple):
 
     @classmethod
     def from_hex_string(cls, hex_byte: str) -> ActionStatus:
-        """Create an instance from the hex string (e.g. ``'F1'``)"""
+        """Create an instance from the hex string (e.g. ``'F1'``)."""
         num = int(hex_byte, base=16)
         action_target = enum_to_dict(ActionTarget)[(num & 0b11100000) >> 5]
         action_type = enum_to_dict(ActionType)[num & 0b00011111]
@@ -145,7 +145,7 @@ class SwapStationStatus(NamedTuple):
 
     @classmethod
     def from_response_string(cls, response: str) -> SwapStationStatus:
-        """Create an instance from the response string (e.g. ``'111'``)"""
+        """Create an instance from the response string (e.g. ``'111'``)."""
         return SwapStationStatus(
             position1_at_door=response[0] == "1",
             occupied_at_door=response[1] == "1",
