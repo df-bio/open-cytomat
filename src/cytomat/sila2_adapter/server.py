@@ -111,16 +111,19 @@ def serve(
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run the Cytomat SiLA2 server.")
-    parser.add_argument("--host", default=HOST)
-    parser.add_argument("--port", type=int, default=DEFAULT_PORT)
-    parser.add_argument("--insecure", action="store_true", help="Use insecure transport.")
-    parser.add_argument("--verbose", action="store_true", help="Enable debug logging.")
-    parser.add_argument("--serial-port", required=True, help="Serial port (e.g. /dev/ttyUSB0, COM10).")
-    parser.add_argument(
+
+    server_options = parser.add_argument_group("server/s options")
+    server_options.add_argument("--host", default=HOST)
+    server_options.add_argument("--port", type=int, default=DEFAULT_PORT)
+    server_options.add_argument("--insecure", action="store_true", help="Use insecure transport.")
+    server_options.add_argument(
         "--cert-dir",
         default="/tmp/open-cytomat/certs",
         help="Directory for generated/loaded TLS certificates when not using --insecure.",
     )
+
+    parser.add_argument("--verbose", action="store_true", help="Enable debug logging.")
+    parser.add_argument("--serial-port", required=True, help="Serial port (e.g. /dev/ttyUSB0, COM10).")
     return parser
 
 
