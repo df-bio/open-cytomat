@@ -1,28 +1,21 @@
 from pathlib import Path
 from types import TracebackType
-from typing import Any
 
 from sila2.framework import DefinedExecutionError, Feature
 from sila2.server import FeatureImplementationBase, SilaServer
+from typing_extensions import Self
 
 from cytomat import Cytomat
+from cytomat.command_execution import CommandExecutionContext
+from cytomat.status import PlateShuttleSystemStatus
 
 
 def load_feature_xml(module_file: str, filename: str) -> Feature:
     return Feature(str(Path(module_file).resolve().with_name(filename)))
 
 
-def status_payload(status: Any) -> dict[str, bool]:
-    return {
-        "TransferStationOccupied": bool(status.transfer_station_occupied),
-        "DeviceDoorOpen": bool(status.device_door_open),
-        "TransferDoorOpen": bool(status.transfer_door_open),
-        "ShovelOccupied": bool(status.shovel_occupied),
-        "Error": bool(status.error),
-        "Warning": bool(status.warning),
-        "Ready": bool(status.ready),
-        "Busy": bool(status.busy),
-    }
+def status_payload(status: PlateShuttleSystemStatus) -> dict[str, bool]:
+    return status.model_dump(mode="python", by_alias=True)
 
 
 class ErrorMapper:
@@ -30,7 +23,7 @@ class ErrorMapper:
         self._feature = feature
         self._fallback_identifier = fallback_identifier
 
-    def __enter__(self) -> "ErrorMapper":
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(
@@ -53,3 +46,6 @@ class CytomatFeatureBase(FeatureImplementationBase):
         super().__init__(parent_server)
         self._cytomat: Cytomat = cytomat
         self._error_mapper = ErrorMapper(feature=feature)
+
+    def _command_execution(self, operation: str) -> CommandExecutionContext:
+        return CommandExecutionContext(cytomat=self._cytomat, operation=operation)
