@@ -1,4 +1,5 @@
 import inspect
+import logging
 from collections import defaultdict
 from collections.abc import Callable
 from pathlib import Path
@@ -89,6 +90,44 @@ def action(ctx: click.Context, port: str | None, config_file: Path) -> None:
 
 
 main.add_alias("action", "a")
+
+
+@main.group("sila")
+def sila() -> None:
+    """SiLA server commands."""
+
+
+@sila.command("serve")
+@click.option("--host", type=str, default="0.0.0.0")
+@click.option("--port", type=int, default=50052)
+@click.option("--insecure", is_flag=True, default=False, help="Use insecure transport.")
+@click.option(
+    "--cert-dir",
+    type=click.Path(path_type=Path, file_okay=False),
+    default=Path("/tmp/open-cytomat/certs"),
+    show_default=True,
+    help="Directory for generated/loaded TLS certificates when not using --insecure.",
+)
+@click.option("--verbose", is_flag=True, default=False, help="Enable debug logging.")
+@click.option("--serial-port", required=True, type=str, help="Serial port (e.g. /dev/ttyUSB0, COM10).")
+def sila_serve(host: str, port: int, insecure: bool, cert_dir: Path, verbose: bool, serial_port: str) -> None:
+    """Serve the Cytomat SiLA2 server."""
+    from cytomat.sila2_adapter import server as sila_server
+
+    logging.basicConfig(
+        level=logging.DEBUG if verbose else logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    )
+
+    cytomat = Cytomat(serial_port)
+    sila_server.serve(
+        cytomat=cytomat,
+        host=host,
+        port=port,
+        insecure=insecure,
+        cert_dir=cert_dir,
+        serial_port=serial_port,
+    )
 
 
 @action.command("initialize")

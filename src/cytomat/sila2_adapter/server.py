@@ -112,7 +112,7 @@ def serve(
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run the Cytomat SiLA2 server.")
 
-    server_options = parser.add_argument_group("server/s options")
+    server_options = parser.add_argument_group("serve/s options")
     server_options.add_argument("--host", default=HOST)
     server_options.add_argument("--port", type=int, default=DEFAULT_PORT)
     server_options.add_argument("--insecure", action="store_true", help="Use insecure transport.")

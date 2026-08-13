@@ -1,4 +1,6 @@
 import json
+import sys
+import types
 from pathlib import Path
 
 import pytest
@@ -91,9 +93,45 @@ class TestCli:
         root_help = runner.invoke(cli.main, ["--help"])
         assert root_help.exit_code == 0
         assert "action [a]" in root_help.output
+        assert "sila" in root_help.output
+        assert "sila [s]" not in root_help.output
 
         action_help = runner.invoke(cli.main, ["action", "--help"])
         assert action_help.exit_code == 0
         assert "initialize [init]" in action_help.output
         assert "plate-handler [ph]" in action_help.output
         assert "climate-controller [cc]" in action_help.output
+
+    def test_sila_serve_command_invokes_server(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        runner = CliRunner()
+        calls: dict[str, object] = {}
+
+        def fake_serve(**kwargs) -> None:
+            calls.update(kwargs)
+
+        fake_server_module = types.SimpleNamespace(serve=fake_serve)
+        monkeypatch.setitem(sys.modules, "cytomat.sila2_adapter.server", fake_server_module)
+
+        result = runner.invoke(
+            cli.main,
+            [
+                "sila",
+                "serve",
+                "--serial-port",
+                "COM7",
+                "--host",
+                "127.0.0.1",
+                "--port",
+                "50053",
+                "--insecure",
+            ],
+        )
+
+        assert result.exit_code == 0
+        assert calls["host"] == "127.0.0.1"
+        assert calls["port"] == 50053
+        assert calls["insecure"] is True
+        assert calls["serial_port"] == "COM7"
+        assert calls["cert_dir"] == Path("/tmp/open-cytomat/certs")
+        assert isinstance(calls["cytomat"], FakeCytomat)
+        assert calls["cytomat"].serial_port == "COM7"

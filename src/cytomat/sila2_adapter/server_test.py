@@ -23,7 +23,7 @@ class TestServerCli:
     def test_parser_has_server_options_group(self) -> None:
         parser = server_module._build_parser()
         group_titles = {group.title for group in parser._action_groups}
-        assert "server/s options" in group_titles
+        assert "serve/s options" in group_titles
 
     def test_main_requires_serial_port(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr("sys.argv", ["cytomat-sila-server"])
