@@ -1,3 +1,32 @@
+[project]
+name = "open-cytomat"
+version = "0.3.3"
+description = ""
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "Niklas Mertsch", email = "niklas.mertsch@stud.uni-goettingen.de" },
+    { name = "rsoeldner", email = "r.soeldner@gmail.com" },
+    { name = "Thiago Meyer", email = "tiagmey@gmail.com" },
+]
+dependencies = [
+    "pyserial>=3.5,<4",
+    "click>=8.1.7,<9",
+    "pydantic>=2.9.2,<3",
+]
+
+[project.scripts]
+open-cytomat = "cytomat.cli:main"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.4.1,<2",
+    "pytest>=7.4.0,<8",
+]
+
+[tool.uv]
+default-groups = ["dev"]
+
 [tool.poetry]
 name = "open-cytomat"
 version = "0.3.3"
@@ -14,6 +43,8 @@ include = [{ path = "src/cytomat/data/sample_config.json" }]
 [tool.poetry.dependencies]
 python = "^3.10"
 pyserial = "^3.5"
+click = "^8.1.7"
+pydantic = "^2.9.2"
 sila2 = { version = "*", optional = true }
 
 [tool.poetry.group.dev.dependencies]
@@ -21,6 +52,7 @@ mypy = "^1.4.1"
 pytest = "^7.4.0"
 
 [tool.poetry.scripts]
+open-cytomat = "cytomat.cli:main"
 post_install = "cytomat.post_install:post_install"
 cytomat-sila-server = "cytomat.sila2_adapter.server:main"
 
@@ -38,6 +70,14 @@ ignore_missing_imports = true
 profile = "black"
 
 [tool.pytest.ini_options]
+testpaths = [
+    "src/cytomat",
+    "tests",
+]
+python_files = [
+    "test_*.py",
+    "*_test.py",
+]
 markers = [
     "integration: tests that require physical Cytomat hardware",
 ]
