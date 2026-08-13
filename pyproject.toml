@@ -36,6 +36,14 @@ ignore_missing_imports = true
 profile = "black"
 
 [tool.pytest.ini_options]
+testpaths = [
+    "src/cytomat",
+    "tests",
+]
+python_files = [
+    "test_*.py",
+    "*_test.py",
+]
 markers = [
     "integration: tests that require physical Cytomat hardware",
 ]
