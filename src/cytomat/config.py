@@ -7,8 +7,8 @@ from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 class CytomatConfig(BaseModel):
     model_config = ConfigDict(extra="ignore", populate_by_name=True)
 
-    com_port: str = Field(
-        default="COM4",
+    com_port: str | None = Field(
+        default=None,
         alias="COM_port",
         validation_alias=AliasChoices("COM_port", "com_port"),
     )
@@ -31,6 +31,6 @@ def save_config(config: CytomatConfig, config_file: Path | None = None) -> Path:
     target = config_file or default_config_file()
     target.parent.mkdir(parents=True, exist_ok=True)
     with target.open("w", encoding="utf-8") as handle:
-        json.dump(config.model_dump(by_alias=True), handle, indent=2)
+        json.dump(config.model_dump(by_alias=True, exclude_none=True), handle, indent=2)
         handle.write("\n")
     return target
