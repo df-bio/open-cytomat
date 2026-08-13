@@ -1,5 +1,6 @@
 import logging
 from types import TracebackType
+from typing import Any
 
 from typing_extensions import Self
 
@@ -28,6 +29,16 @@ class CommandExecutionContext:
     def __call__(self, operation: str) -> Self:
         self._operation = operation
         return self
+
+    @property
+    def final_status(self) -> Status:
+        if self._last_status is None:
+            raise RuntimeError(f"{self._log_prefix()} no final status available; command context did not finish yet")
+        return self._last_status
+
+    @property
+    def final_status_payload(self) -> dict[str, Any]:
+        return self.final_status.model_dump(mode="json", by_alias=True)
 
     def log_action_status(self, status: PlateShuttleSystemStatus) -> None:
         logger.debug(f"{self._log_prefix()} Immediate: {self._format_plate_shuttle(status)}")
