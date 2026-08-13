@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from pathlib import Path
 from types import TracebackType
 from typing import Any
@@ -32,7 +30,7 @@ class ErrorMapper:
         self._feature = feature
         self._fallback_identifier = fallback_identifier
 
-    def __enter__(self) -> ErrorMapper:
+    def __enter__(self) -> "ErrorMapper":
         return self
 
     def __exit__(

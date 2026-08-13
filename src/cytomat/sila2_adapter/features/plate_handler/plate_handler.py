@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from sila2.server import MetadataDict, SilaServer
 
 from cytomat import Cytomat
