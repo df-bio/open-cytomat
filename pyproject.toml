@@ -67,7 +67,6 @@ pytest = "^7.4.0"
 [tool.poetry.scripts]
 open-cytomat = "cytomat.cli:main"
 post_install = "cytomat.post_install:post_install"
-cytomat-sila-server = "cytomat.sila2_adapter.server:main"
 
 [tool.poetry.extras]
 sila = ["sila2"]

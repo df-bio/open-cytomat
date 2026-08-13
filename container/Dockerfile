@@ -24,5 +24,5 @@ COPY src/ ${APP_DIR}/src/
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install --python ${APP_DIR}/.venv/bin/python ".[sila]"
 
-ENTRYPOINT ["cytomat-sila-server"]
+ENTRYPOINT ["open-cytomat"]
 CMD ["--help"]
