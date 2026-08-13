@@ -101,7 +101,7 @@ class CommandExecutionContext:
             try:
                 new_status = next(iterator)
             except StopIteration as stop:
-                final = stop.value
+                final: Status = stop.value
                 logger.debug(
                     f"[{self._operation}] Finished: action={self._format_action(final)}, "
                     f"overview={self._overview_active(final.overview)}"
