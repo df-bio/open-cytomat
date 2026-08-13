@@ -27,21 +27,35 @@ class PlateHandlerFeature(CytomatFeatureBase):
         _ = metadata
         return self._run_operation("Initialize", self._cytomat.plate_handler.initialize)
 
-    def MovePlateFromTransferStationToSlot(self, Slot: int, *, metadata: MetadataDict):
+    def MovePlateFromTransferStationToSlot(
+        self,
+        Slot: int,
+        *,
+        metadata: MetadataDict,
+    ):
         _ = metadata
         return self._run_operation(
             "MovePlateFromTransferStationToSlot",
-            lambda: self._cytomat.plate_handler.move_plate_from_transfer_station_to_slot(
-                Slot
+            lambda: (
+                self._cytomat.plate_handler.move_plate_from_transfer_station_to_slot(
+                    Slot
+                )
             ),
         )
 
-    def MovePlateFromSlotToTransferStation(self, Slot: int, *, metadata: MetadataDict):
+    def MovePlateFromSlotToTransferStation(
+        self,
+        Slot: int,
+        *,
+        metadata: MetadataDict,
+    ):
         _ = metadata
         return self._run_operation(
             "MovePlateFromSlotToTransferStation",
-            lambda: self._cytomat.plate_handler.move_plate_from_slot_to_transfer_station(
-                Slot
+            lambda: (
+                self._cytomat.plate_handler.move_plate_from_slot_to_transfer_station(
+                    Slot
+                )
             ),
         )
 
@@ -94,21 +108,35 @@ class PlateHandlerFeature(CytomatFeatureBase):
             lambda: self._cytomat.plate_handler.move_plate_from_slot_to_handler(Slot),
         )
 
-    def MovePlateFromExposedPositionToSlot(self, Slot: int, *, metadata: MetadataDict):
+    def MovePlateFromExposedPositionToSlot(
+        self,
+        Slot: int,
+        *,
+        metadata: MetadataDict,
+    ):
         _ = metadata
         return self._run_operation(
             "MovePlateFromExposedPositionToSlot",
-            lambda: self._cytomat.plate_handler.move_plate_from_exposed_position_to_slot(
-                Slot
+            lambda: (
+                self._cytomat.plate_handler.move_plate_from_exposed_position_to_slot(
+                    Slot
+                )
             ),
         )
 
-    def MovePlateFromSlotToExposedPosition(self, Slot: int, *, metadata: MetadataDict):
+    def MovePlateFromSlotToExposedPosition(
+        self,
+        Slot: int,
+        *,
+        metadata: MetadataDict,
+    ):
         _ = metadata
         return self._run_operation(
             "MovePlateFromSlotToExposedPosition",
-            lambda: self._cytomat.plate_handler.move_plate_from_slot_to_exposed_position(
-                Slot
+            lambda: (
+                self._cytomat.plate_handler.move_plate_from_slot_to_exposed_position(
+                    Slot
+                )
             ),
         )
 

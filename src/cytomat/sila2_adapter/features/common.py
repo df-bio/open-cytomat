@@ -3,7 +3,7 @@ from types import TracebackType
 
 from sila2.framework import DefinedExecutionError, Feature
 from sila2.server import FeatureImplementationBase, SilaServer
-from typing_extensions import Self
+from typing_extensions import Literal, Self
 
 from cytomat import Cytomat
 from cytomat.command_execution import CommandExecutionContext
@@ -28,7 +28,7 @@ class ErrorMapper:
         exc_type: type[BaseException] | None,
         exc: BaseException | None,
         tb: TracebackType | None,
-    ) -> bool:
+    ) -> Literal[False]:
         del exc_type, tb
         if exc is None:
             return False

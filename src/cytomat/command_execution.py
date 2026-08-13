@@ -2,7 +2,7 @@ import logging
 from types import TracebackType
 from typing import Any
 
-from typing_extensions import Self
+from typing_extensions import Literal, Self
 
 from cytomat.cytomat import Cytomat
 from cytomat.status import OverviewStatus, PlateShuttleSystemStatus, Status
@@ -34,7 +34,8 @@ class CommandExecutionContext:
     def final_status(self) -> Status:
         if self._last_status is None:
             raise RuntimeError(
-                f"{self._log_prefix()} no final status available; command context did not finish yet"
+                f"{self._log_prefix()} no final status available; "
+                "command context did not finish yet"
             )
         return self._last_status
 
@@ -124,7 +125,7 @@ class CommandExecutionContext:
         exc_type: type[BaseException] | None,
         exc: BaseException | None,
         tb: TracebackType | None,
-    ) -> bool:
+    ) -> Literal[False]:
         del exc_type, tb
         if exc is not None:
             logger.debug(f"{self._log_prefix()} command raised before wait: {exc}")
@@ -148,7 +149,8 @@ class CommandExecutionContext:
             except StopIteration as stop:
                 self._last_status = stop.value
                 logger.debug(
-                    f"{self._log_prefix()} Finished: action={self._format_action(stop.value)}, "
+                    f"{self._log_prefix()} Finished: "
+                    f"action={self._format_action(stop.value)}, "
                     f"overview={self._overview_active(stop.value.overview)}"
                 )
                 return False
