@@ -86,3 +86,16 @@ class TestCli:
 
         assert result.exit_code == 0
         assert "door-opened" in result.output
+
+    def test_help_shows_aliases_inline_without_duplicate_entries(self) -> None:
+        runner = CliRunner()
+
+        root_help = runner.invoke(cli.main, ["--help"])
+        assert root_help.exit_code == 0
+        assert "action [a]" in root_help.output
+
+        action_help = runner.invoke(cli.main, ["action", "--help"])
+        assert action_help.exit_code == 0
+        assert "initialize [init]" in action_help.output
+        assert "plate-handler [ph]" in action_help.output
+        assert "climate-controller [cc]" in action_help.output

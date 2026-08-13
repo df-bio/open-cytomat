@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import inspect
+from collections import defaultdict
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -31,12 +32,43 @@ COMMAND_ALIASES: dict[str, dict[str, str]] = {
 }
 
 
-@click.group()
+class AliasedGroup(click.Group):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._alias_to_primary: dict[str, str] = {}
+
+    def add_alias(self, primary: str, alias: str) -> None:
+        self._alias_to_primary[alias] = primary
+
+    def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
+        resolved = self._alias_to_primary.get(cmd_name, cmd_name)
+        return super().get_command(ctx, resolved)
+
+    def format_commands(self, ctx: click.Context, formatter: click.HelpFormatter) -> None:
+        rows: list[tuple[str, str]] = []
+        aliases_by_primary: dict[str, list[str]] = defaultdict(list)
+        for alias, primary in self._alias_to_primary.items():
+            aliases_by_primary[primary].append(alias)
+
+        for subcommand in self.list_commands(ctx):
+            command = self.get_command(ctx, subcommand)
+            if command is None or command.hidden:
+                continue
+            aliases = sorted(aliases_by_primary.get(subcommand, []))
+            label = subcommand if not aliases else f"{subcommand} [{', '.join(aliases)}]"
+            rows.append((label, command.get_short_help_str()))
+
+        if rows:
+            with formatter.section("Commands"):
+                formatter.write_dl(rows)
+
+
+@click.group(cls=AliasedGroup)
 def main() -> None:
     """Command line interface for open-cytomat."""
 
 
-@main.group("action")
+@main.group("action", cls=AliasedGroup)
 @click.option(
     "--port",
     type=str,
@@ -58,7 +90,7 @@ def action(ctx: click.Context, port: str | None, config_file: Path) -> None:
     ctx.obj["config_file"] = config_file
 
 
-main.add_command(action, "a")
+main.add_alias("action", "a")
 
 
 @action.command("initialize")
@@ -77,7 +109,7 @@ def initialize_config(ctx: click.Context, com_port: str | None) -> None:
     click.echo(f"COM_port={config.com_port}")
 
 
-action.add_command(initialize_config, "init")
+action.add_alias("initialize", "init")
 
 
 def _resolve_port(ctx: click.Context) -> str:
@@ -130,7 +162,7 @@ def _invoke_factory(controller_attr: str, method_name: str) -> Callable[..., Non
 
 def _register_controller_commands() -> None:
     for group_name, controller_attr, group_alias, controller_cls in CONTROLLERS:
-        group = click.Group(group_name)
+        group = AliasedGroup(group_name)
 
         for method_name, method in inspect.getmembers(controller_cls, predicate=inspect.isfunction):
             if method_name.startswith("_"):
@@ -160,10 +192,10 @@ def _register_controller_commands() -> None:
 
             alias = COMMAND_ALIASES.get(group_name, {}).get(command_name)
             if alias:
-                group.add_command(command, alias)
+                group.add_alias(command_name, alias)
 
         action.add_command(group)
-        action.add_command(group, group_alias)
+        action.add_alias(group_name, group_alias)
 
 
 _register_controller_commands()
