@@ -245,6 +245,5 @@ class TestCli:
         assert calls["port"] == 50053
         assert calls["insecure"] is True
         assert calls["serial_port"] == "COM7"
-        assert calls["cert_dir"] == Path("/tmp/open-cytomat/certs")
         assert isinstance(calls["cytomat"], FakeCytomat)
         assert calls["cytomat"].serial_port == "COM7"

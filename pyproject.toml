@@ -39,7 +39,11 @@ authors = [
 ]
 readme = "README.md"
 packages = [{ include = "cytomat", from = "src" }]
-include = [{ path = "src/cytomat/data/sample_config.json" }]
+include = [
+    { path = "src/cytomat/data/sample_config.json" },
+    { path = "src/cytomat/sila2_adapter/certs/server.crt" },
+    { path = "src/cytomat/sila2_adapter/certs/server.key" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -71,6 +75,7 @@ ignore_missing_imports = true
 profile = "black"
 
 [tool.pytest.ini_options]
+addopts = "-m 'not integration'"
 testpaths = [
     "src/cytomat",
     "tests",

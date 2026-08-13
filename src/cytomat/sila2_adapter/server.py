@@ -1,10 +1,9 @@
 import argparse
 import logging
 import signal
-import subprocess
 import threading
 import uuid
-from pathlib import Path
+from importlib import resources
 
 from cytomat import Cytomat
 
@@ -19,31 +18,10 @@ def _server_uuid(*, host: str, port: int, serial_port: str) -> uuid.UUID:
     return uuid.uuid5(uuid.NAMESPACE_URL, seed)
 
 
-def _ensure_certs(cert_dir: Path, host: str) -> tuple[bytes, bytes]:
-    cert_dir.mkdir(parents=True, exist_ok=True)
-    cert_path = cert_dir / "server.crt"
-    key_path = cert_dir / "server.key"
-
-    if not cert_path.exists() or not key_path.exists():
-        cmd = [
-            "openssl",
-            "req",
-            "-x509",
-            "-newkey",
-            "rsa:2048",
-            "-nodes",
-            "-keyout",
-            str(key_path),
-            "-out",
-            str(cert_path),
-            "-days",
-            "3650",
-            "-subj",
-            f"/CN={host}",
-        ]
-        subprocess.run(cmd, check=True)
-
-    return key_path.read_bytes(), cert_path.read_bytes()
+def _read_packaged_tls_asset(filename: str) -> bytes:
+    asset = resources.files("cytomat.sila2_adapter") / "certs" / filename
+    with asset.open("rb") as handle:
+        return handle.read()
 
 
 def serve(
@@ -52,7 +30,6 @@ def serve(
     host: str,
     port: int,
     insecure: bool,
-    cert_dir: Path,
     serial_port: str,
 ) -> None:
     from sila2.server import SilaServer
@@ -87,7 +64,8 @@ def serve(
         if insecure:
             server.start_insecure(host, port, enable_discovery=True)
         else:
-            private_key, cert_chain = _ensure_certs(cert_dir, host)
+            private_key = _read_packaged_tls_asset("server.key")
+            cert_chain = _read_packaged_tls_asset("server.crt")
             server.start(
                 host,
                 port,
@@ -116,11 +94,6 @@ def _build_parser() -> argparse.ArgumentParser:
     server_options.add_argument("--host", default=HOST)
     server_options.add_argument("--port", type=int, default=DEFAULT_PORT)
     server_options.add_argument("--insecure", action="store_true", help="Use insecure transport.")
-    server_options.add_argument(
-        "--cert-dir",
-        default="/tmp/open-cytomat/certs",
-        help="Directory for generated/loaded TLS certificates when not using --insecure.",
-    )
 
     parser.add_argument("--verbose", action="store_true", help="Enable debug logging.")
     parser.add_argument("--serial-port", required=True, help="Serial port (e.g. /dev/ttyUSB0, COM10).")
@@ -140,6 +113,5 @@ def main() -> None:
         host=args.host,
         port=args.port,
         insecure=args.insecure,
-        cert_dir=Path(args.cert_dir),
         serial_port=args.serial_port,
     )

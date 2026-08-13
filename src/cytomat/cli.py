@@ -115,15 +115,8 @@ def sila(ctx: click.Context, serial_port: str | None, config_file: Path) -> None
 @click.option("--host", type=str, default="0.0.0.0")
 @click.option("--port", type=int, default=50052)
 @click.option("--insecure", is_flag=True, default=False, help="Use insecure transport.")
-@click.option(
-    "--cert-dir",
-    type=click.Path(path_type=Path, file_okay=False),
-    default=Path("/tmp/open-cytomat/certs"),
-    show_default=True,
-    help="Directory for generated/loaded TLS certificates when not using --insecure.",
-)
 @click.option("--verbose", is_flag=True, default=False, help="Enable debug logging.")
-def sila_serve(host: str, port: int, insecure: bool, cert_dir: Path, verbose: bool) -> None:
+def sila_serve(host: str, port: int, insecure: bool, verbose: bool) -> None:
     """Serve the Cytomat SiLA2 server."""
     from cytomat.sila2_adapter import server as sila_server
 
@@ -139,7 +132,6 @@ def sila_serve(host: str, port: int, insecure: bool, cert_dir: Path, verbose: bo
         host=host,
         port=port,
         insecure=insecure,
-        cert_dir=cert_dir,
         serial_port=serial_port,
     )
 

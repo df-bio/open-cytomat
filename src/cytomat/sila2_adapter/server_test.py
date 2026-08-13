@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 
 from cytomat.sila2_adapter import server as server_module
@@ -50,8 +48,6 @@ class TestServerCli:
                 "127.0.0.1",
                 "--port",
                 "50052",
-                "--cert-dir",
-                "/tmp/cytomat-certs",
             ],
         )
 
@@ -61,5 +57,4 @@ class TestServerCli:
         assert calls["port"] == 50052
         assert calls["insecure"] is True
         assert calls["serial_port"] == "COM1"
-        assert calls["cert_dir"] == Path("/tmp/cytomat-certs")
         assert calls["cytomat"].serial_port_name == "COM1"

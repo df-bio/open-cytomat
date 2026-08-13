@@ -32,4 +32,4 @@ just -f container/Justfile down
 
 - SiLA2 is installed via package extra (`.[sila]`) in this image.
 - Base package installs can omit SiLA2 dependency.
-- TLS mode auto-generates cert/key under `--cert-dir` when `--insecure` is not set.
+- TLS mode uses packaged cert/key from `src/cytomat/sila2_adapter/certs/` when `--insecure` is not set.
