@@ -60,24 +60,18 @@ class CommandExecutionContext:
         if not action_changed and not error_changed and not overview_diff:
             return
 
-        action_text = self._format_action(current) if action_changed else ""
-        overview_text = self._format_diff(overview_diff)
-        error_text = current.error.name if error_changed else ""
+        changes: list[str] = []
+        if action_changed:
+            changes.append(f"action={self._format_action(current)}")
+        if overview_diff:
+            changes.append(f"overview={self._format_diff(overview_diff)}")
+        if error_changed:
+            changes.append(f"error={current.error.name}")
 
-        if error_text:
-            logger.debug(
-                "[%s] Changed: action=%s, overview=%s, error=%s",
-                self._operation,
-                action_text,
-                overview_text,
-                error_text,
-            )
-            return
-
-        logger.debug("[%s] Changed: action=%s, overview=%s", self._operation, action_text, overview_text)
+        logger.debug(f"[{self._operation}] Changed: {', '.join(changes)}")
 
     def __enter__(self) -> Self:
-        logger.debug("[%s] begin command execution", self._operation)
+        logger.debug(f"[{self._operation}] begin command execution")
         return self
 
     def __exit__(
@@ -88,7 +82,7 @@ class CommandExecutionContext:
     ) -> bool:
         del exc_type, tb
         if exc is not None:
-            logger.debug("[%s] command raised before wait: %s", self._operation, exc)
+            logger.debug(f"[{self._operation}] command raised before wait: {exc}")
             return False
 
         iterator = self._cytomat.iter_overview_status_until_not_busy(
@@ -99,10 +93,8 @@ class CommandExecutionContext:
 
         if current.overview.command_in_process:
             logger.debug(
-                "[%s] Waiting: action=%s, overview=%s",
-                self._operation,
-                self._format_action(current),
-                self._overview_active(current.overview),
+                f"[{self._operation}] Waiting: action={self._format_action(current)}, "
+                f"overview={self._overview_active(current.overview)}"
             )
 
         while True:
@@ -111,10 +103,8 @@ class CommandExecutionContext:
             except StopIteration as stop:
                 final = stop.value
                 logger.debug(
-                    "[%s] Finished: action=%s, overview=%s",
-                    self._operation,
-                    self._format_action(final),
-                    self._overview_active(final.overview),
+                    f"[{self._operation}] Finished: action={self._format_action(final)}, "
+                    f"overview={self._overview_active(final.overview)}"
                 )
                 return False
 
