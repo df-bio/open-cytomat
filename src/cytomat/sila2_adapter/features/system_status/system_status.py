@@ -18,7 +18,9 @@ class SystemStatusFeature(CytomatFeatureBase):
     def GetPlateShuttleSystemStatus(self, *, metadata: MetadataDict):
         _ = metadata
         with self._error_mapper:
-            return self._cytomat.status.plate_shuttle_system.model_dump(mode="json", by_alias=True)
+            return self._cytomat.status.plate_shuttle_system.model_dump(
+                mode="json", by_alias=True
+            )
 
     def GetOverviewStatus(self, *, metadata: MetadataDict):
         _ = metadata
@@ -43,4 +45,6 @@ class SystemStatusFeature(CytomatFeatureBase):
     def ResetErrorRegister(self, *, metadata: MetadataDict):
         _ = metadata
         with self._error_mapper:
-            return self._cytomat.reset_error_register().model_dump(mode="json", by_alias=True)
+            return self._cytomat.reset_error_register().model_dump(
+                mode="json", by_alias=True
+            )

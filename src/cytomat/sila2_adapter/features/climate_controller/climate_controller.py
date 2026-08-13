@@ -13,4 +13,6 @@ class ClimateControllerFeature(CytomatFeatureBase):
     def Invoke(self, Method: str, ArgumentsJson: str, *, metadata: MetadataDict):
         _ = (Method, ArgumentsJson, metadata)
         with self._error_mapper:
-            raise NotImplementedError("ClimateController feature is not implemented yet")
+            raise NotImplementedError(
+                "ClimateController feature is not implemented yet"
+            )

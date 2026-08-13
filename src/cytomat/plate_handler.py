@@ -1,5 +1,3 @@
-from zipfile import stringEndArchive
-
 from cytomat.convert_steps import ConvertSteps as CS
 from cytomat.serial_port import SerialPort
 from cytomat.status import PlateShuttleSystemStatus
@@ -59,21 +57,29 @@ class PlateHandler:
         """
         return self.serial_port.issue_action_command("mv:tw")
 
-    def move_plate_from_handler_to_transfer_station(self) -> PlateShuttleSystemStatus:
+    def move_plate_from_handler_to_transfer_station(
+        self,
+    ) -> PlateShuttleSystemStatus:
         """
         Move a plate from the plate handler shovel to the transfer station
         """
         return self.serial_port.issue_action_command("mv:wt")
 
-    def move_plate_from_exposed_position_to_inside(self) -> PlateShuttleSystemStatus:
+    def move_plate_from_exposed_position_to_inside(
+        self,
+    ) -> PlateShuttleSystemStatus:
         """
-        Move a plate from the exposed position (above the transfer station) to the neutral position inside the device
+        Move a plate from the exposed position (above the transfer station)
+        to the neutral position inside the device
         """
         return self.serial_port.issue_action_command("mv:hw")
 
-    def move_plate_from_inside_to_exposed_position(self) -> PlateShuttleSystemStatus:
+    def move_plate_from_inside_to_exposed_position(
+        self,
+    ) -> PlateShuttleSystemStatus:
         """
-        Move a plate from the neutral position inside the device to the exposed position (above the transfer station)
+        Move a plate from the neutral position inside the device to the
+        exposed position (above the transfer station)
         """
         return self.serial_port.issue_action_command("mv:wh")
 
@@ -103,7 +109,8 @@ class PlateHandler:
         self, slot: int
     ) -> PlateShuttleSystemStatus:
         """
-        Move a plate from the exposed position (above the transfer station) to the given slot
+        Move a plate from the exposed position (above the transfer station)
+        to the given slot
 
         Parameters
         ----------
@@ -116,7 +123,8 @@ class PlateHandler:
         self, slot: int
     ) -> PlateShuttleSystemStatus:
         """
-        Move a plate from the given slot to the exposed position (above the transfer station)
+        Move a plate from the given slot to the exposed position
+        (above the transfer station)
 
         Parameters
         ----------
@@ -197,9 +205,10 @@ class PlateHandler:
         """
         return self.serial_port.issue_action_command(f"ll:xp {slot:03}")
 
-    """commands to direct via absolute and relative steps.WARNING!!! 
+    """commands to direct via absolute and relative steps.WARNING!!!
        The following commands do not check if the handler is in a safe position.
-       This can cause crashes. Make sure when entering these commands if its safe to run"""
+       This can cause crashes. Make sure when entering these commands
+       if it's safe to run"""
 
     def warning_msg(self):
         print(
@@ -224,7 +233,8 @@ class PlateHandler:
             case _:
                 self.warning_msg()
 
-    # length steps/cm ~ 172 // range of usable values: 0-24000 steps (self measured Values)
+    # length steps/cm ~ 172
+    # range of usable values: 0-24000 steps (self measured values)
     def run_shovel_in_absolute_mm(self, mm: float) -> PlateShuttleSystemStatus:
         """
         run the shovel in absolute steps from the point zero
@@ -253,7 +263,8 @@ class PlateHandler:
         steps = CS.mm_to_steps_shovel(mm)
         return self.serial_port.issue_action_command(f"sb:sr {steps:05}")
 
-    # rotation steps/deg ~ 173 // range of usable values: 0-180 deg (self measured Values)
+    # rotation steps/deg ~ 173
+    # range of usable values: 0-180 deg (self measured values)
     def run_turn_in_absolute_degrees(self, deg: float) -> PlateShuttleSystemStatus:
         """
         run turn in absolute steps from the point zero
@@ -273,18 +284,18 @@ class PlateHandler:
         self.reset_handler_position()
         self.move_x_to_slot(17)
         self.rotate_handler_to_slot(1)
-        self.run_height_in_absolute_mm(26)
+        return self.run_height_in_absolute_mm(26)
 
     def drop_lid(self) -> PlateShuttleSystemStatus:
         self.goto_lid_drop_position()
         self.run_shovel_in_absolute_mm(145)
-        self.run_height_in_absolute_mm(18)
+        return self.run_height_in_absolute_mm(18)
 
     def pick_lid(self) -> PlateShuttleSystemStatus:
         self.goto_lid_drop_position()
         self.run_height_in_absolute_mm(18)
         self.run_shovel_in_absolute_mm(150)
-        self.run_height_in_absolute_mm(26)
+        return self.run_height_in_absolute_mm(26)
 
     def run_turn_in_relative_degrees(self, deg: float) -> PlateShuttleSystemStatus:
         """
@@ -358,7 +369,9 @@ class PlateHandler:
         steps = CS.mm_to_steps_turntable(mm)
         return self.serial_port.issue_action_command(f"sb:kr {steps:05}")
 
-    # width steps/mm ~ 2432 // right stacker ~ at 15500 steps, left stacker ~ at 317000 steps (self measured Values)
+    # width steps/mm ~ 2432
+    # right stacker ~15500 steps, left stacker ~317000 steps
+    # (self measured values)
     def run_x_axis_in_absolute_mm(self, mm: float) -> PlateShuttleSystemStatus:
         """
         run x-axis in absolute steps from the point zero

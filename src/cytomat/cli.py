@@ -46,7 +46,9 @@ class AliasedGroup(click.Group):
         resolved = self._alias_to_primary.get(cmd_name, cmd_name)
         return super().get_command(ctx, resolved)
 
-    def format_commands(self, ctx: click.Context, formatter: click.HelpFormatter) -> None:
+    def format_commands(
+        self, ctx: click.Context, formatter: click.HelpFormatter
+    ) -> None:
         rows: list[tuple[str, str]] = []
         aliases_by_primary: dict[str, list[str]] = defaultdict(list)
         for alias, primary in self._alias_to_primary.items():
@@ -57,7 +59,9 @@ class AliasedGroup(click.Group):
             if command is None or command.hidden:
                 continue
             aliases = sorted(aliases_by_primary.get(subcommand, []))
-            label = subcommand if not aliases else f"{subcommand} [{', '.join(aliases)}]"
+            label = (
+                subcommand if not aliases else f"{subcommand} [{', '.join(aliases)}]"
+            )
             rows.append((label, command.get_short_help_str()))
 
         if rows:
@@ -76,7 +80,10 @@ def _add_alias(group: click.Group, primary: str, alias: str) -> None:
     "--serial-port",
     type=str,
     default=None,
-    help="Serial port. If omitted, COM_port is read from --config-file/--config, then auto-detected when exactly one usable port is available.",
+    help=(
+        "Serial port. If omitted, COM_port is read from --config-file/--config, "
+        "then auto-detected when exactly one usable port is available."
+    ),
 )
 @click.option(
     "--config-file",
@@ -95,7 +102,12 @@ def _add_alias(group: click.Group, primary: str, alias: str) -> None:
     help="Root logger level.",
 )
 @click.pass_context
-def main(ctx: click.Context, serial_port: str | None, config_file: Path, log_level: str) -> None:
+def main(
+    ctx: click.Context,
+    serial_port: str | None,
+    config_file: Path,
+    log_level: str,
+) -> None:
     """Command line interface for open-cytomat."""
     state = ctx.ensure_object(dict)
     state["config_file"] = config_file
@@ -234,7 +246,9 @@ def _register_controller_commands() -> None:
     for group_name, controller_attr, group_alias, controller_cls in CONTROLLERS:
         group = AliasedGroup(group_name)
 
-        for method_name, method in inspect.getmembers(controller_cls, predicate=inspect.isfunction):
+        for method_name, method in inspect.getmembers(
+            controller_cls, predicate=inspect.isfunction
+        ):
             if method_name.startswith("_"):
                 continue
 
@@ -243,7 +257,11 @@ def _register_controller_commands() -> None:
                 parameter
                 for parameter in signature.parameters.values()
                 if parameter.name != "self"
-                and parameter.kind in (inspect.Parameter.POSITIONAL_OR_KEYWORD, inspect.Parameter.KEYWORD_ONLY)
+                and parameter.kind
+                in (
+                    inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    inspect.Parameter.KEYWORD_ONLY,
+                )
             ]
 
             callback = _invoke_factory(controller_attr, method_name)
@@ -251,12 +269,20 @@ def _register_controller_commands() -> None:
                 callback = click.option(
                     f"--{_kebab(parameter.name)}",
                     required=parameter.default is inspect._empty,
-                    default=None if parameter.default is inspect._empty else parameter.default,
+                    default=(
+                        None
+                        if parameter.default is inspect._empty
+                        else parameter.default
+                    ),
                     type=_option_type(parameter),
                 )(callback)
 
             command_name = _kebab(method_name)
-            command_help = (method.__doc__ or "").strip().splitlines()[0] if method.__doc__ else None
+            command_help = (
+                (method.__doc__ or "").strip().splitlines()[0]
+                if method.__doc__
+                else None
+            )
             command = click.command(name=command_name, help=command_help)(callback)
             group.add_command(command)
 

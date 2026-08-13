@@ -3,7 +3,9 @@ from sila2.server import MetadataDict, SilaServer
 from cytomat import Cytomat
 from cytomat.sila2_adapter.features.common import CytomatFeatureBase, load_feature_xml
 
-MAINTENANCE_CONTROLLER_FEATURE = load_feature_xml(__file__, "maintenance_controller.sila.xml")
+MAINTENANCE_CONTROLLER_FEATURE = load_feature_xml(
+    __file__, "maintenance_controller.sila.xml"
+)
 
 
 class MaintenanceControllerFeature(CytomatFeatureBase):
@@ -13,4 +15,6 @@ class MaintenanceControllerFeature(CytomatFeatureBase):
     def Invoke(self, Method: str, ArgumentsJson: str, *, metadata: MetadataDict):
         _ = (Method, ArgumentsJson, metadata)
         with self._error_mapper:
-            raise NotImplementedError("MaintenanceController feature is not implemented yet")
+            raise NotImplementedError(
+                "MaintenanceController feature is not implemented yet"
+            )

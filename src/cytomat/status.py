@@ -8,7 +8,9 @@ from cytomat.utils import int_to_bits
 
 
 class PlateShuttleSystemStatus(BaseModel):
-    transfer_station_occupied: bool = Field(serialization_alias="TransferStationOccupied")
+    transfer_station_occupied: bool = Field(
+        serialization_alias="TransferStationOccupied"
+    )
     device_door_open: bool = Field(serialization_alias="DeviceDoorOpen")
     transfer_door_open: bool = Field(serialization_alias="TransferDoorOpen")
     shovel_occupied: bool = Field(serialization_alias="ShovelOccupied")
@@ -35,13 +37,17 @@ class PlateShuttleSystemStatus(BaseModel):
 
 class OverviewStatus(BaseModel):
     command_in_process: bool = Field(serialization_alias="CommandInProcess")
-    command_executed_device_busy: bool = Field(serialization_alias="CommandExecutedDeviceBusy")
+    command_executed_device_busy: bool = Field(
+        serialization_alias="CommandExecutedDeviceBusy"
+    )
     warning_pending: bool = Field(serialization_alias="WarningPending")
     error_pending: bool = Field(serialization_alias="ErrorPending")
     shovel_occupied: bool = Field(serialization_alias="ShovelOccupied")
     auto_lift_door_open: bool = Field(serialization_alias="AutoLiftDoorOpen")
     device_door_open: bool = Field(serialization_alias="DeviceDoorOpen")
-    transfer_station_occupied: bool = Field(serialization_alias="TransferStationOccupied")
+    transfer_station_occupied: bool = Field(
+        serialization_alias="TransferStationOccupied"
+    )
 
     @classmethod
     def from_hex_string(cls, hex_byte: str) -> OverviewStatus:
@@ -171,7 +177,9 @@ class SwapStationStatus(BaseModel):
 
 
 class Status(BaseModel):
-    plate_shuttle_system: PlateShuttleSystemStatus = Field(serialization_alias="PlateShuttleSystem")
+    plate_shuttle_system: PlateShuttleSystemStatus = Field(
+        serialization_alias="PlateShuttleSystem"
+    )
     overview: OverviewStatus = Field(serialization_alias="Overview")
     action: ActionStatus = Field(serialization_alias="Action")
     error: ErrorStatus = Field(serialization_alias="Error")

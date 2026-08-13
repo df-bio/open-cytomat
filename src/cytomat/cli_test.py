@@ -55,7 +55,14 @@ class TestCli:
 
         result = runner.invoke(
             cli.main,
-            ["--config-file", str(config_file), "--serial-port", "COM11", "action", "initialize"],
+            [
+                "--config-file",
+                str(config_file),
+                "--serial-port",
+                "COM11",
+                "action",
+                "initialize",
+            ],
         )
 
         assert result.exit_code == 0
@@ -84,7 +91,10 @@ class TestCli:
     def test_shortcuts_work_for_group_and_command_alias(self) -> None:
         runner = CliRunner()
 
-        result = runner.invoke(cli.main, ["--serial-port", "COM3", "a", "ph", "door-open"])
+        result = runner.invoke(
+            cli.main,
+            ["--serial-port", "COM3", "a", "ph", "door-open"],
+        )
 
         assert result.exit_code == 0
         assert "door-opened" in result.output
@@ -132,7 +142,10 @@ class TestCli:
         )
 
         assert result.exit_code != 0
-        assert "No serial port configured and no usable serial ports were auto-detected" in result.output
+        assert (
+            "No serial port configured and no usable serial ports were auto-detected"
+            in result.output
+        )
 
     def test_fails_when_multiple_usable_ports_found_without_explicit_configuration(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
@@ -212,7 +225,10 @@ class TestCli:
         assert "plate-handler [ph]" in action_help.output
         assert "climate-controller [cc]" in action_help.output
 
-    def test_sila_serve_command_invokes_server(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_sila_serve_command_invokes_server(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
         runner = CliRunner()
         calls: dict[str, object] = {}
 
@@ -246,7 +262,10 @@ class TestCli:
         assert isinstance(calls["cytomat"], FakeCytomat)
         assert calls["cytomat"].serial_port == "COM7"
 
-    def test_root_log_level_configures_logging_before_subcommand(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_root_log_level_configures_logging_before_subcommand(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
         runner = CliRunner()
         configured: dict[str, object] = {}
 
@@ -258,7 +277,10 @@ class TestCli:
         monkeypatch.setattr(cli.logging, "basicConfig", fake_basic_config)
         monkeypatch.setattr(sila_server, "serve", lambda **kwargs: None)
 
-        result = runner.invoke(cli.main, ["--serial-port", "COM7", "--log-level", "ERROR", "s", "serve"])
+        result = runner.invoke(
+            cli.main,
+            ["--serial-port", "COM7", "--log-level", "ERROR", "s", "serve"],
+        )
 
         assert result.exit_code == 0
         assert configured["level"] == cli.logging.ERROR

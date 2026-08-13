@@ -15,7 +15,9 @@ class PlateHandlerFeature(CytomatFeatureBase):
         super().__init__(parent_server, cytomat, feature=PLATE_HANDLER_FEATURE)
         self._cmd_context.scope = "PlateHandler"
 
-    def _run_operation(self, fn_name: str, operation: Callable[[], PlateShuttleSystemStatus]) -> dict[str, Any]:
+    def _run_operation(
+        self, fn_name: str, operation: Callable[[], PlateShuttleSystemStatus]
+    ) -> dict[str, Any]:
         with self._error_mapper, self._cmd_context(fn_name):
             immediate_status = operation()
             self._cmd_context.log_action_status(immediate_status)
@@ -29,14 +31,18 @@ class PlateHandlerFeature(CytomatFeatureBase):
         _ = metadata
         return self._run_operation(
             "MovePlateFromTransferStationToSlot",
-            lambda: self._cytomat.plate_handler.move_plate_from_transfer_station_to_slot(Slot),
+            lambda: self._cytomat.plate_handler.move_plate_from_transfer_station_to_slot(
+                Slot
+            ),
         )
 
     def MovePlateFromSlotToTransferStation(self, Slot: int, *, metadata: MetadataDict):
         _ = metadata
         return self._run_operation(
             "MovePlateFromSlotToTransferStation",
-            lambda: self._cytomat.plate_handler.move_plate_from_slot_to_transfer_station(Slot),
+            lambda: self._cytomat.plate_handler.move_plate_from_slot_to_transfer_station(
+                Slot
+            ),
         )
 
     def ExecuteLowLevel(self, Command: str, *, metadata: MetadataDict):
@@ -92,32 +98,46 @@ class PlateHandlerFeature(CytomatFeatureBase):
         _ = metadata
         return self._run_operation(
             "MovePlateFromExposedPositionToSlot",
-            lambda: self._cytomat.plate_handler.move_plate_from_exposed_position_to_slot(Slot),
+            lambda: self._cytomat.plate_handler.move_plate_from_exposed_position_to_slot(
+                Slot
+            ),
         )
 
     def MovePlateFromSlotToExposedPosition(self, Slot: int, *, metadata: MetadataDict):
         _ = metadata
         return self._run_operation(
             "MovePlateFromSlotToExposedPosition",
-            lambda: self._cytomat.plate_handler.move_plate_from_slot_to_exposed_position(Slot),
+            lambda: self._cytomat.plate_handler.move_plate_from_slot_to_exposed_position(
+                Slot
+            ),
         )
 
     def RetractShovel(self, *, metadata: MetadataDict):
         _ = metadata
-        return self._run_operation("RetractShovel", self._cytomat.plate_handler.retract_shovel)
+        return self._run_operation(
+            "RetractShovel", self._cytomat.plate_handler.retract_shovel
+        )
 
     def ExtendShovel(self, *, metadata: MetadataDict):
         _ = metadata
-        return self._run_operation("ExtendShovel", self._cytomat.plate_handler.extend_shovel)
+        return self._run_operation(
+            "ExtendShovel", self._cytomat.plate_handler.extend_shovel
+        )
 
     def CloseTransferDoor(self, *, metadata: MetadataDict):
         _ = metadata
-        return self._run_operation("CloseTransferDoor", self._cytomat.plate_handler.close_transfer_door)
+        return self._run_operation(
+            "CloseTransferDoor", self._cytomat.plate_handler.close_transfer_door
+        )
 
     def OpenTransferDoor(self, *, metadata: MetadataDict):
         _ = metadata
-        return self._run_operation("OpenTransferDoor", self._cytomat.plate_handler.open_transfer_door)
+        return self._run_operation(
+            "OpenTransferDoor", self._cytomat.plate_handler.open_transfer_door
+        )
 
     def ResetHandlerPosition(self, *, metadata: MetadataDict):
         _ = metadata
-        return self._run_operation("ResetHandlerPosition", self._cytomat.plate_handler.reset_handler_position)
+        return self._run_operation(
+            "ResetHandlerPosition", self._cytomat.plate_handler.reset_handler_position
+        )

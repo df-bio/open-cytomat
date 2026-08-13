@@ -33,7 +33,9 @@ class CommandExecutionContext:
     @property
     def final_status(self) -> Status:
         if self._last_status is None:
-            raise RuntimeError(f"{self._log_prefix()} no final status available; command context did not finish yet")
+            raise RuntimeError(
+                f"{self._log_prefix()} no final status available; command context did not finish yet"
+            )
         return self._last_status
 
     @property
@@ -41,7 +43,9 @@ class CommandExecutionContext:
         return self.final_status.model_dump(mode="json", by_alias=True)
 
     def log_action_status(self, status: PlateShuttleSystemStatus) -> None:
-        logger.debug(f"{self._log_prefix()} Immediate: {self._format_plate_shuttle(status)}")
+        logger.debug(
+            f"{self._log_prefix()} Immediate: {self._format_plate_shuttle(status)}"
+        )
 
     def _log_prefix(self) -> str:
         if self.scope:
@@ -69,7 +73,9 @@ class CommandExecutionContext:
         return ", ".join(active)
 
     @staticmethod
-    def _overview_diff(previous: OverviewStatus, current: OverviewStatus) -> dict[str, bool]:
+    def _overview_diff(
+        previous: OverviewStatus, current: OverviewStatus
+    ) -> dict[str, bool]:
         previous_values = previous.model_dump(mode="python")
         current_values = current.model_dump(mode="python")
 
@@ -105,7 +111,9 @@ class CommandExecutionContext:
 
     def __enter__(self) -> Self:
         if not self._operation:
-            raise RuntimeError("Operation must be set before entering command execution context")
+            raise RuntimeError(
+                "Operation must be set before entering command execution context"
+            )
 
         self._last_status = None
         logger.debug(f"{self._log_prefix()} begin command execution")

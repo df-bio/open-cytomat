@@ -24,7 +24,7 @@ class TestCytomatConfig:
     def test_save_writes_com_port_alias(self, tmp_path: Path) -> None:
         config_file = tmp_path / "config.json"
 
-        save_config(CytomatConfig(com_port="COM7"), config_file)
+        save_config(CytomatConfig(COM_port="COM7"), config_file)
 
         payload = json.loads(config_file.read_text(encoding="utf-8"))
         assert payload == {"COM_port": "COM7"}
