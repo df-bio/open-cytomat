@@ -11,6 +11,7 @@ from cytomat.config import default_config_file, load_config, save_config
 from cytomat.cytomat import Cytomat
 from cytomat.maintenance_controller import MaintenanceController
 from cytomat.plate_handler import PlateHandler
+from cytomat.serial_port import usable_serial_ports
 from cytomat.shaker_controller import ShakerController
 
 ControllerSpec = tuple[str, str, str, type[Any]]
@@ -66,20 +67,25 @@ def main() -> None:
     """Command line interface for open-cytomat."""
 
 
+def _connection_options(command: Callable[..., Any]) -> Callable[..., Any]:
+    command = click.option(
+        "--port",
+        type=str,
+        default=None,
+        help="Serial port. If omitted, COM_port is read from --config-file, then auto-detected when exactly one usable port is available.",
+    )(command)
+    command = click.option(
+        "--config-file",
+        type=click.Path(path_type=Path, dir_okay=False),
+        default=default_config_file,
+        show_default=True,
+        help="Path to JSON config file.",
+    )(command)
+    return command
+
+
 @main.group("action", cls=AliasedGroup)
-@click.option(
-    "--port",
-    type=str,
-    default=None,
-    help="Serial port. If omitted, COM_port is read from --config-file.",
-)
-@click.option(
-    "--config-file",
-    type=click.Path(path_type=Path, dir_okay=False),
-    default=default_config_file,
-    show_default=True,
-    help="Path to JSON config file.",
-)
+@_connection_options
 @click.pass_context
 def action(ctx: click.Context, port: str | None, config_file: Path) -> None:
     """Run controller actions or initialize CLI config."""
@@ -111,13 +117,43 @@ action.add_alias("initialize", "init")
 
 
 def _resolve_port(ctx: click.Context) -> str:
-    state = ctx.find_object(dict) or {}
+    state = ctx.find_object(dict)
+    if state is None:
+        raise click.UsageError("Could not resolve action state from Click context")
+
+    cached = state.get("resolved_port")
+    if cached:
+        return cached
+
     explicit_port = state.get("port")
     if explicit_port:
+        state["resolved_port"] = explicit_port
         return explicit_port
 
     config_file = state.get("config_file", default_config_file())
-    return load_config(config_file).com_port
+    configured_port = load_config(config_file).com_port
+    if configured_port:
+        state["resolved_port"] = configured_port
+        return configured_port
+
+    discovered_ports = usable_serial_ports()
+    if len(discovered_ports) == 1:
+        discovered_port = discovered_ports[0]
+        state["resolved_port"] = discovered_port
+        click.echo(f"Auto-detected serial port: {discovered_port}", err=True)
+        return discovered_port
+
+    if not discovered_ports:
+        raise click.UsageError(
+            "No serial port configured and no usable serial ports were auto-detected. "
+            "Pass --port, or set COM_port via `action initialize --com-port ...`."
+        )
+
+    raise click.UsageError(
+        "Multiple usable serial ports found: "
+        f"{', '.join(discovered_ports)}. "
+        "Pass --port, or set COM_port via `action initialize --com-port ...`."
+    )
 
 
 def _resolve_cytomat(ctx: click.Context) -> Cytomat:

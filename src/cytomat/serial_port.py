@@ -13,7 +13,8 @@ from cytomat.utils import lock_threading_lock
 logger = logging.getLogger(__name__)
 
 
-def first_usable_serial_port(*, timeout: float = 1.0) -> str | None:
+def usable_serial_ports(*, timeout: float = 1.0) -> list[str]:
+    usable_ports: list[str] = []
     for port in list_ports.comports():
         logger.debug(f"Checking serial port candidate: {port.device}")
         try:
@@ -23,11 +24,19 @@ def first_usable_serial_port(*, timeout: float = 1.0) -> str | None:
             continue
 
         serial_port.close()
-        logger.info(f"Using serial port: {port.device}")
-        return port.device
+        usable_ports.append(port.device)
 
-    logger.debug("No usable serial ports found")
-    return None
+    if usable_ports:
+        logger.info(f"Usable serial ports: {', '.join(usable_ports)}")
+    else:
+        logger.debug("No usable serial ports found")
+
+    return usable_ports
+
+
+def first_usable_serial_port(*, timeout: float = 1.0) -> str | None:
+    ports = usable_serial_ports(timeout=timeout)
+    return ports[0] if ports else None
 
 
 class SerialPort:
