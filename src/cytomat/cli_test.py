@@ -57,7 +57,7 @@ class TestCli:
 
         result = runner.invoke(
             cli.main,
-            ["action", "--config-file", str(config_file), "--serial-port", "COM11", "initialize"],
+            ["--config-file", str(config_file), "--serial-port", "COM11", "action", "initialize"],
         )
 
         assert result.exit_code == 0
@@ -70,9 +70,9 @@ class TestCli:
         result = runner.invoke(
             cli.main,
             [
-                "action",
                 "--serial-port",
                 "COM3",
+                "action",
                 "plate-handler",
                 "move-plate-from-slot-to-transfer-station",
                 "--slot",
@@ -86,7 +86,7 @@ class TestCli:
     def test_shortcuts_work_for_group_and_command_alias(self) -> None:
         runner = CliRunner()
 
-        result = runner.invoke(cli.main, ["a", "--serial-port", "COM3", "ph", "door-open"])
+        result = runner.invoke(cli.main, ["--serial-port", "COM3", "a", "ph", "door-open"])
 
         assert result.exit_code == 0
         assert "door-opened" in result.output
@@ -101,9 +101,9 @@ class TestCli:
         result = runner.invoke(
             cli.main,
             [
-                "action",
                 "--config-file",
                 str(config_file),
+                "action",
                 "plate-handler",
                 "move-plate-from-slot-to-transfer-station",
                 "--slot",
@@ -125,9 +125,9 @@ class TestCli:
         result = runner.invoke(
             cli.main,
             [
-                "action",
                 "--config-file",
                 str(config_file),
+                "action",
                 "plate-handler",
                 "door-open",
             ],
@@ -146,9 +146,9 @@ class TestCli:
         result = runner.invoke(
             cli.main,
             [
-                "action",
                 "--config-file",
                 str(config_file),
+                "action",
                 "plate-handler",
                 "door-open",
             ],
@@ -168,11 +168,11 @@ class TestCli:
         result = runner.invoke(
             cli.main,
             [
-                "action",
                 "--config-file",
                 str(config_file),
                 "--serial-port",
                 "COM3",
+                "action",
                 "plate-handler",
                 "door-open",
             ],
@@ -189,9 +189,9 @@ class TestCli:
         result = runner.invoke(
             cli.main,
             [
-                "action",
-                "--config-file",
+                "--config",
                 str(config_file),
+                "action",
                 "plate-handler",
                 "door-open",
             ],
@@ -228,9 +228,9 @@ class TestCli:
         result = runner.invoke(
             cli.main,
             [
-                "sila",
                 "--serial-port",
                 "COM7",
+                "sila",
                 "serve",
                 "--host",
                 "127.0.0.1",
