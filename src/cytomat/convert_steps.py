@@ -3,7 +3,6 @@ from cytomat.parameters import Parameters
 
 class ConvertSteps:
     parameters = Parameters()
-    parameters.load()
 
     @classmethod
     def mm_to_steps_x(cls, mm: float) -> int:

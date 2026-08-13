@@ -14,6 +14,7 @@ include = [{ path = "src/cytomat/data/sample_config.json" }]
 [tool.poetry.dependencies]
 python = "^3.10"
 pyserial = "^3.5"
+pydantic = "^2.9.2"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.4.1"
