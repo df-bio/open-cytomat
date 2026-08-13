@@ -7,15 +7,10 @@ from typing_extensions import Self
 
 from cytomat import Cytomat
 from cytomat.command_execution import CommandExecutionContext
-from cytomat.status import PlateShuttleSystemStatus
 
 
 def load_feature_xml(module_file: str, filename: str) -> Feature:
     return Feature(str(Path(module_file).resolve().with_name(filename)))
-
-
-def status_payload(status: PlateShuttleSystemStatus) -> dict[str, bool]:
-    return status.model_dump(mode="python", by_alias=True)
 
 
 class ErrorMapper:
