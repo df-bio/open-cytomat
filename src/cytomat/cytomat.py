@@ -58,7 +58,9 @@ class Cytomat:
         warning_byte = self.serial_port.issue_status_command("ch:bw")
 
         return Status(
-            plate_shuttle_system=PlateShuttleSystemStatus.from_hex_string(overview_byte),
+            plate_shuttle_system=PlateShuttleSystemStatus.from_hex_string(
+                overview_byte
+            ),
             overview=OverviewStatus.from_hex_string(overview_byte),
             action=ActionStatus.from_hex_string(action_byte),
             error=ErrorStatus.from_hex_string(error_byte),
@@ -68,28 +70,38 @@ class Cytomat:
     @property
     def overview_status(self) -> OverviewStatus:
         """Status overview."""
-        return OverviewStatus.from_hex_string(self.serial_port.issue_status_command("ch:bs"))
+        return OverviewStatus.from_hex_string(
+            self.serial_port.issue_status_command("ch:bs")
+        )
 
     @property
     def action_status(self) -> ActionStatus:
         """Action status."""
-        return ActionStatus.from_hex_string(self.serial_port.issue_status_command("ch:ba"))
+        return ActionStatus.from_hex_string(
+            self.serial_port.issue_status_command("ch:ba")
+        )
 
     @property
     def error_status(self) -> ErrorStatus:
         """Error status."""
-        return ErrorStatus.from_hex_string(self.serial_port.issue_status_command("ch:be"))
+        return ErrorStatus.from_hex_string(
+            self.serial_port.issue_status_command("ch:be")
+        )
 
     @property
     def warning_status(self) -> WarningStatus:
         """Warning status."""
-        return WarningStatus.from_hex_string(self.serial_port.issue_status_command("ch:bw"))
+        return WarningStatus.from_hex_string(
+            self.serial_port.issue_status_command("ch:bw")
+        )
 
     def reset_error_register(self) -> PlateShuttleSystemStatus:
         """Reset the error register."""
         return self.serial_port.issue_action_command("rs:be")
 
-    def wait_until_not_busy(self, timeout: float, poll_interval: float = 0.5) -> OverviewStatus:
+    def wait_until_not_busy(
+        self, timeout: float, poll_interval: float = 0.5
+    ) -> OverviewStatus:
         """
         Block the current thread until the device is not busy anymore.
 

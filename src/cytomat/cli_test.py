@@ -55,7 +55,14 @@ class TestCli:
 
         result = runner.invoke(
             cli.main,
-            ["action", "--config-file", str(config_file), "initialize", "--port", "COM11"],
+            [
+                "action",
+                "--config-file",
+                str(config_file),
+                "initialize",
+                "--port",
+                "COM11",
+            ],
         )
 
         assert result.exit_code == 0

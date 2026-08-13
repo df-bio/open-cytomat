@@ -2,7 +2,7 @@ import inspect
 from collections import defaultdict
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import click
 
@@ -128,7 +128,7 @@ def initialize_config(ctx: click.Context, com_port: str | None) -> None:
     click.echo(f"COM_port={config.com_port}")
 
 
-action.add_alias("initialize", "init")
+cast(AliasedGroup, action).add_alias("initialize", "init")
 
 
 def _resolve_port(ctx: click.Context) -> str:
@@ -257,8 +257,9 @@ def _register_controller_commands() -> None:
             if alias:
                 group.add_alias(command_name, alias)
 
-        action.add_command(group)
-        action.add_alias(group_name, group_alias)
+        action_group = cast(AliasedGroup, action)
+        action_group.add_command(group)
+        action_group.add_alias(group_name, group_alias)
 
 
 _register_controller_commands()
