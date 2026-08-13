@@ -1,6 +1,4 @@
 import json
-import sys
-import types
 from pathlib import Path
 
 import pytest
@@ -120,7 +118,7 @@ class TestCli:
     ) -> None:
         runner = CliRunner()
         config_file = tmp_path / "config.json"
-        monkeypatch.setattr(cli, "usable_serial_ports", lambda: [])
+        monkeypatch.setattr(cli, "usable_serial_ports", list)
 
         result = runner.invoke(
             cli.main,
@@ -206,8 +204,7 @@ class TestCli:
         root_help = runner.invoke(cli.main, ["--help"])
         assert root_help.exit_code == 0
         assert "action [a]" in root_help.output
-        assert "sila" in root_help.output
-        assert "sila [s]" not in root_help.output
+        assert "sila [s]" in root_help.output
 
         action_help = runner.invoke(cli.main, ["action", "--help"])
         assert action_help.exit_code == 0
@@ -222,8 +219,9 @@ class TestCli:
         def fake_serve(**kwargs) -> None:
             calls.update(kwargs)
 
-        fake_server_module = types.SimpleNamespace(serve=fake_serve)
-        monkeypatch.setitem(sys.modules, "cytomat.sila2_adapter.server", fake_server_module)
+        from cytomat.sila2_adapter import server as sila_server
+
+        monkeypatch.setattr(sila_server, "serve", fake_serve)
 
         result = runner.invoke(
             cli.main,
@@ -247,3 +245,20 @@ class TestCli:
         assert calls["serial_port"] == "COM7"
         assert isinstance(calls["cytomat"], FakeCytomat)
         assert calls["cytomat"].serial_port == "COM7"
+
+    def test_root_log_level_configures_logging_before_subcommand(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        runner = CliRunner()
+        configured: dict[str, object] = {}
+
+        def fake_basic_config(**kwargs) -> None:
+            configured.update(kwargs)
+
+        from cytomat.sila2_adapter import server as sila_server
+
+        monkeypatch.setattr(cli.logging, "basicConfig", fake_basic_config)
+        monkeypatch.setattr(sila_server, "serve", lambda **kwargs: None)
+
+        result = runner.invoke(cli.main, ["--serial-port", "COM7", "--log-level", "ERROR", "s", "serve"])
+
+        assert result.exit_code == 0
+        assert configured["level"] == cli.logging.ERROR

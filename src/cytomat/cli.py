@@ -23,6 +23,8 @@ CONTROLLERS: tuple[ControllerSpec, ...] = (
     ("shaker-controller", "shaker_controller", "sc", ShakerController),
 )
 
+LOG_LEVELS = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
+
 COMMAND_ALIASES: dict[str, dict[str, str]] = {
     "plate-handler": {
         "open-transfer-door": "door-open",
@@ -79,14 +81,26 @@ class AliasedGroup(click.Group):
     show_default=True,
     help="Path to JSON config file.",
 )
+@click.option(
+    "--log-level",
+    type=click.Choice(LOG_LEVELS, case_sensitive=False),
+    default="INFO",
+    show_default=True,
+    help="Root logger level.",
+)
 @click.pass_context
-def main(ctx: click.Context, serial_port: str | None, config_file: Path) -> None:
+def main(ctx: click.Context, serial_port: str | None, config_file: Path, log_level: str) -> None:
     """Command line interface for open-cytomat."""
     state = ctx.ensure_object(dict)
     state["config_file"] = config_file
+    state["log_level"] = log_level.upper()
     if ctx.resilient_parsing:
         return
-    state["serial_port"] = _resolve_serial_port(serial_port=serial_port, config_file=config_file)
+    logging.basicConfig(
+        level=getattr(logging, state["log_level"]),
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    )
+    state["serial_port_option"] = serial_port
 
 
 @main.group("action", cls=AliasedGroup)
@@ -97,27 +111,24 @@ def action() -> None:
 main.add_alias("action", "a")
 
 
-@main.group("sila")
+@main.group("sila", cls=AliasedGroup)
 def sila() -> None:
     """SiLA server commands."""
+
+
+main.add_alias("sila", "s")
 
 
 @sila.command("serve")
 @click.option("--host", type=str, default="0.0.0.0")
 @click.option("--port", type=int, default=50052)
 @click.option("--insecure", is_flag=True, default=False, help="Use insecure transport.")
-@click.option("--verbose", is_flag=True, default=False, help="Enable debug logging.")
-def sila_serve(host: str, port: int, insecure: bool, verbose: bool) -> None:
+def sila_serve(host: str, port: int, insecure: bool) -> None:
     """Serve the Cytomat SiLA2 server."""
     from cytomat.sila2_adapter import server as sila_server
 
-    logging.basicConfig(
-        level=logging.DEBUG if verbose else logging.INFO,
-        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-    )
-
     state = click.get_current_context().find_root().obj
-    serial_port = state["serial_port"]
+    serial_port = _get_serial_port(state)
     cytomat = Cytomat(serial_port)
     sila_server.serve(
         cytomat=cytomat,
@@ -134,7 +145,7 @@ def initialize_config() -> None:
     state = click.get_current_context().find_root().obj
     config_file = state["config_file"]
     config = load_config(config_file)
-    config.com_port = state["serial_port"]
+    config.com_port = _get_serial_port(state)
     target = save_config(config, config_file)
     click.echo(f"Saved config: {target}")
     click.echo(f"COM_port={config.com_port}")
@@ -142,6 +153,14 @@ def initialize_config() -> None:
 
 action.add_alias("initialize", "init")
 
+
+def _get_serial_port(state: dict[str, Any]) -> str:
+    if "serial_port" not in state:
+        state["serial_port"] = _resolve_serial_port(
+            serial_port=state.get("serial_port_option"),
+            config_file=state["config_file"],
+        )
+    return state["serial_port"]
 
 
 def _resolve_serial_port(*, serial_port: str | None, config_file: Path) -> str:
@@ -171,7 +190,6 @@ def _resolve_serial_port(*, serial_port: str | None, config_file: Path) -> str:
     )
 
 
-
 def _kebab(name: str) -> str:
     return name.replace("_", "-")
 
@@ -193,8 +211,9 @@ def _invoke_factory(controller_attr: str, method_name: str) -> Callable[..., Non
         root = ctx.find_root()
         root.ensure_object(dict)
         state = root.obj
+        serial_port = _get_serial_port(state)
         if "cytomat" not in state:
-            state["cytomat"] = Cytomat(state["serial_port"])
+            state["cytomat"] = Cytomat(serial_port)
         cytomat = state["cytomat"]
         controller = getattr(cytomat, controller_attr)
         method = getattr(controller, method_name)
