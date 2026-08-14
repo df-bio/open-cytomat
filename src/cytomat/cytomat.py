@@ -1,5 +1,5 @@
 import time
-from datetime import datetime, timedelta
+from collections.abc import Generator
 
 from cytomat.barcode_scanner import BarcodeScanner
 from cytomat.climate_controller import ClimateController
@@ -99,9 +99,31 @@ class Cytomat:
         """Reset the error register."""
         return self.serial_port.issue_action_command("rs:be")
 
+    def iter_overview_status_until_not_busy(
+        self,
+        timeout: float,
+        poll_interval: float = 0.5,
+    ) -> Generator[Status, None, Status]:
+        """Yield full status snapshots until the device is not busy anymore."""
+        status = self.status
+        yield status
+
+        deadline_monotonic = time.monotonic() + timeout
+        while status.overview.command_in_process:
+            if time.monotonic() > deadline_monotonic:
+                raise TimeoutError(f"Device still busy after {timeout:.1f} seconds")
+
+            time.sleep(poll_interval)
+            status = self.status
+            yield status
+
+        return status
+
     def wait_until_not_busy(
-        self, timeout: float, poll_interval: float = 0.5
-    ) -> OverviewStatus:
+        self,
+        timeout: float,
+        poll_interval: float = 0.5,
+    ) -> Status:
         """
         Block the current thread until the device is not busy anymore.
 
@@ -111,17 +133,18 @@ class Cytomat:
             The timeout in seconds
         poll_interval
             The polling interval in seconds
-
         Raises
         ------
         TimeoutError
             If the device is still busy after the given timeout duration
         """
-        status = self.overview_status
-        end_time = datetime.now() + timedelta(seconds=timeout)
-        while status.command_in_process:
-            if end_time < datetime.now():
-                raise TimeoutError(f"Device still busy after {timeout} seconds")
-            time.sleep(poll_interval)
-            status = self.overview_status
-        return status
+        iterator = self.iter_overview_status_until_not_busy(
+            timeout=timeout,
+            poll_interval=poll_interval,
+        )
+
+        while True:
+            try:
+                _ = next(iterator)
+            except StopIteration as stop:
+                return stop.value

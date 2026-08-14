@@ -1,0 +1,14 @@
+up:
+    docker compose -f container/compose.yml up --build -d
+
+down:
+    docker compose -f container/compose.yml down -v
+
+logs:
+    docker compose -f container/compose.yml logs -f
+
+up-hardware serial_port device:
+    docker compose -f container/compose.yml run --rm --service-ports --entrypoint open-cytomat --device "{{ device }}:{{ device }}" open-cytomat-sila sila serve --host 0.0.0.0 --port 50052 --insecure --serial-port "{{ serial_port }}"
+
+shell:
+    docker compose -f container/compose.yml run --rm --entrypoint /bin/bash open-cytomat-sila

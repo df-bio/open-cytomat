@@ -213,14 +213,23 @@ class SerialPort:
                 f"Expected command like 'ch:xx' or 'ch:xx ...', got '{command}'"
             )
 
-        try:
-            response = self.check_prefix_and_strip(
-                self.communicate(command), expected_prefix=command[3:5]
-            )
-        except UnexpectedResponse as e:
-            print(f"Unexpected response while checking status: {e}. Trying again.")
-            response = self.check_prefix_and_strip(
-                self.communicate(command), expected_prefix=command[3:5]
-            )
+        expected_prefix = command[3:5]
+        max_attempts = 2
+        for attempt in range(1, max_attempts + 1):
+            try:
+                return self.check_prefix_and_strip(
+                    self.communicate(command), expected_prefix=expected_prefix
+                )
+            except UnexpectedResponse as exc:
+                if attempt == max_attempts:
+                    raise
+                logger.warning(
+                    "Unexpected response for status command %s "
+                    "(attempt %d/%d): %s; retrying",
+                    command,
+                    attempt,
+                    max_attempts,
+                    exc,
+                )
 
-        return response
+        raise RuntimeError("Unreachable")

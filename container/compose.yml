@@ -1,0 +1,19 @@
+services:
+  open-cytomat-sila:
+    build:
+      context: ..
+      dockerfile: container/Dockerfile
+    image: open-cytomat:sila
+    container_name: open-cytomat-sila
+    restart: "unless-stopped"
+    ports:
+      - "50052:50052"
+    devices:
+      - "${CYTOMAT_DEVICE:-/dev/ttyUSB0}:${CYTOMAT_DEVICE:-/dev/ttyUSB0}"
+    command:
+      [
+        "--host", "0.0.0.0",
+        "--port", "50052",
+        "--insecure",
+        "--serial-port", "${CYTOMAT_SERIAL_PORT:-/dev/ttyUSB0}"
+      ]

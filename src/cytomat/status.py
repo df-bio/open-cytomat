@@ -2,20 +2,22 @@ from __future__ import annotations
 
 from enum import IntEnum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from cytomat.utils import int_to_bits
 
 
 class PlateShuttleSystemStatus(BaseModel):
-    transfer_station_occupied: bool
-    device_door_open: bool
-    transfer_door_open: bool
-    shovel_occupied: bool
-    error: bool
-    warning: bool
-    ready: bool
-    busy: bool
+    transfer_station_occupied: bool = Field(
+        serialization_alias="TransferStationOccupied"
+    )
+    device_door_open: bool = Field(serialization_alias="DeviceDoorOpen")
+    transfer_door_open: bool = Field(serialization_alias="TransferDoorOpen")
+    shovel_occupied: bool = Field(serialization_alias="ShovelOccupied")
+    error: bool = Field(serialization_alias="Error")
+    warning: bool = Field(serialization_alias="Warning")
+    ready: bool = Field(serialization_alias="Ready")
+    busy: bool = Field(serialization_alias="Busy")
 
     @classmethod
     def from_hex_string(cls, hex_byte: str) -> PlateShuttleSystemStatus:
@@ -34,14 +36,18 @@ class PlateShuttleSystemStatus(BaseModel):
 
 
 class OverviewStatus(BaseModel):
-    command_in_process: bool
-    command_executed_device_busy: bool
-    warning_pending: bool
-    error_pending: bool
-    shovel_occupied: bool
-    auto_lift_door_open: bool
-    device_door_open: bool
-    transfer_station_occupied: bool
+    command_in_process: bool = Field(serialization_alias="CommandInProcess")
+    command_executed_device_busy: bool = Field(
+        serialization_alias="CommandExecutedDeviceBusy"
+    )
+    warning_pending: bool = Field(serialization_alias="WarningPending")
+    error_pending: bool = Field(serialization_alias="ErrorPending")
+    shovel_occupied: bool = Field(serialization_alias="ShovelOccupied")
+    auto_lift_door_open: bool = Field(serialization_alias="AutoLiftDoorOpen")
+    device_door_open: bool = Field(serialization_alias="DeviceDoorOpen")
+    transfer_station_occupied: bool = Field(
+        serialization_alias="TransferStationOccupied"
+    )
 
     @classmethod
     def from_hex_string(cls, hex_byte: str) -> OverviewStatus:
@@ -143,8 +149,8 @@ class ActionTarget(IntEnum):
 
 
 class ActionStatus(BaseModel):
-    type: ActionType
-    target: ActionTarget
+    type: ActionType = Field(serialization_alias="Type")
+    target: ActionTarget = Field(serialization_alias="Target")
 
     @classmethod
     def from_hex_string(cls, hex_byte: str) -> ActionStatus:
@@ -156,9 +162,9 @@ class ActionStatus(BaseModel):
 
 
 class SwapStationStatus(BaseModel):
-    position1_at_door: bool
-    occupied_at_door: bool
-    occupied_at_user: bool
+    position1_at_door: bool = Field(serialization_alias="Position1AtDoor")
+    occupied_at_door: bool = Field(serialization_alias="OccupiedAtDoor")
+    occupied_at_user: bool = Field(serialization_alias="OccupiedAtUser")
 
     @classmethod
     def from_response_string(cls, response: str) -> SwapStationStatus:
@@ -171,8 +177,10 @@ class SwapStationStatus(BaseModel):
 
 
 class Status(BaseModel):
-    plate_shuttle_system: PlateShuttleSystemStatus
-    overview: OverviewStatus
-    action: ActionStatus
-    error: ErrorStatus
-    warning: WarningStatus
+    plate_shuttle_system: PlateShuttleSystemStatus = Field(
+        serialization_alias="PlateShuttleSystem"
+    )
+    overview: OverviewStatus = Field(serialization_alias="Overview")
+    action: ActionStatus = Field(serialization_alias="Action")
+    error: ErrorStatus = Field(serialization_alias="Error")
+    warning: WarningStatus = Field(serialization_alias="Warning")

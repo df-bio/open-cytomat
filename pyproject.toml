@@ -13,6 +13,7 @@ dependencies = [
     "pyserial>=3.5,<4",
     "click>=8.1.7,<9",
     "pydantic>=2.9.2,<3",
+    "sila2",
 ]
 
 [project.scripts]
@@ -42,13 +43,18 @@ authors = [
 ]
 readme = "README.md"
 packages = [{ include = "cytomat", from = "src" }]
-include = [{ path = "src/cytomat/data/sample_config.json" }]
+include = [
+    { path = "src/cytomat/data/sample_config.json" },
+    { path = "src/cytomat/sila2_adapter/certs/server.crt" },
+    { path = "src/cytomat/sila2_adapter/certs/server.key" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 pyserial = "^3.5"
 click = "^8.1.7"
 pydantic = "^2.9.2"
+sila2 = { version = "*", optional = true }
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
@@ -60,6 +66,10 @@ pytest = "^7.4.0"
 
 [tool.poetry.scripts]
 open-cytomat = "cytomat.cli:main"
+post_install = "cytomat.post_install:post_install"
+
+[tool.poetry.extras]
+sila = ["sila2"]
 
 [build-system]
 requires = ["poetry-core"]
@@ -73,6 +83,7 @@ ignore_missing_imports = true
 profile = "black"
 
 [tool.pytest.ini_options]
+addopts = "-m 'not integration'"
 testpaths = [
     "src/cytomat",
     "tests",
