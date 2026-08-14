@@ -1,9 +1,10 @@
 from pathlib import Path
 from types import TracebackType
+from typing import Literal
 
 from sila2.framework import DefinedExecutionError, Feature
 from sila2.server import FeatureImplementationBase, SilaServer
-from typing_extensions import Literal, Self
+from typing_extensions import Self
 
 from cytomat import Cytomat
 from cytomat.command_execution import CommandExecutionContext
